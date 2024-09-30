@@ -9,18 +9,14 @@ CAN_ID_power = [0x481, 0x482]
 CAN_ID_RFID = 0x009
 
 class CAN_setting():
-    def __init__(self) -> None:
+    def __init__(self):
         self.can_open = False
-
-        # Check CAN Communication
         try:
             self.bus = can.Bus(interface='socketcan', channel='can0', bitrate=500000)
             self.can_open = True
         except OSError:
             self.can_open = False
             exit()
-        
-        # Send Initialize Motor
         if self.can_open == True:
             for i in range(len(CAN_ID_first_set)):
                 self.bus.send(can.Message(arbitration_id=0x000, data=[0x01, i], extended_id=False))
