@@ -27,10 +27,13 @@ class main_robot():
         threading.Thread(target=self.data_read).start()
         threading.Thread(target=self.data_plc).start()
 
+        self.previous_time = time.time() * 1000
+        self.turn = False
+
     def robot(self):
-        with open('config/robot_configure.json', 'r') as file:
-            data = json.load(file)
-        if self.canbus.data_voltage[0] > data['Voltage_reference'] and self.canbus.data_voltage[1] > data['Voltage_reference']:
+        # print(str(self.canbus.flag[-2]) + " " + str(self.canbus.flag[-3]) + " " + str(self.canbus.data_RFID))
+        if self.canbus.data_voltage[0] > self.bridge.low_voltage and self.canbus.data_voltage[1] > self.bridge.low_voltage:
+
             # Mode Kontrol Robot
             if self.bridge.manual_b == True:
                 self.mode_control = True
@@ -38,22 +41,25 @@ class main_robot():
                 self.mode_control = False
 
             # Robot Main
-            if self.mode_control == False and self.bridge.start_b == True:            
-                if self.canbus.flag__data_sensor() != 16:
+            if self.mode_control == False and self.bridge.start_b == True:     
+                if self.canbus.flag[-2] != bin(0)[2:] or self.turn == True:
                     if self.bridge.Obstacel_data[1] == False:
                         if self.bridge.Obstacel_data[0] == True:
                             self.bridge.buzzer_select('S1')
-                            self.Kecepatan_base = self.convert_to_RPM(self.bridge.Kecepatan * 2/5)
+                            self.Kecepatan_base = self.convert_to_RPM(self.bridge.Kecepatan * 1/5)
                         else:
                             self.bridge.buzzer_select('S4')
-                            self.mode_run('rule/node.json', self.canbus.data_RFID)                        
+                            self.mode_run('/home/runindo/riset/AGV_Robot/rule/node.json', self.canbus.data_RFID)                        
                     else:
                         self.Kecepatan_base = 0.0
                         self.bridge.buzzer_select('S2')
+                        self.canbus.set_kecepatan_motor([int(self.Kecepatan_base - self.pid.compute(self.error)), int(-self.Kecepatan_base - self.pid.compute(self.error))])
+                    if self.turn == False:
+                        self.canbus.set_kecepatan_motor([int(self.Kecepatan_base - self.pid.compute(self.error)), int(-self.Kecepatan_base - self.pid.compute(self.error))])
                 else:
                     self.Kecepatan_base = 0.0
                     self.bridge.buzzer_select('S2')
-                self.canbus.set_kecepatan_motor([int(self.Kecepatan_base - self.pid.compute(self.error)), int(-self.Kecepatan_base - self.pid.compute(self.error))])
+                    self.canbus.set_kecepatan_motor([int(self.Kecepatan_base - self.pid.compute(self.error)), int(-self.Kecepatan_base - self.pid.compute(self.error))])
             else:
                 if self.bridge.Kontrol_data[0] == True:
                     self.canbus.set_kecepatan_motor([int(self.convert_to_RPM(self.bridge.c_kecepatan)), -int(self.convert_to_RPM(self.bridge.c_kecepatan))])
@@ -66,16 +72,19 @@ class main_robot():
                 else:
                     self.Kecepatan_base = 0.0
                     self.bridge.buzzer_select('None')
-                    self.canbus.set_kecepatan_motor([int(self.Kecepatan_base - self.pid.compute(self.error)), int(-self.Kecepatan_base - self.pid.compute(self.error))])
+                    self.canbus.set_kecepatan_motor([int(self.Kecepatan_base), int(-self.Kecepatan_base)])
+                    # self.canbus.set_kecepatan_motor([int(self.Kecepatan_base - self.pid.compute(self.error)), int(-self.Kecepatan_base - self.pid.compute(self.error))])
         else:
             self.Kecepatan_base = 0.0
             self.bridge.buzzer_select('S2')
-            self.canbus.set_kecepatan_motor([int(self.Kecepatan_base - self.pid.compute(self.error)), int(-self.Kecepatan_base - self.pid.compute(self.error))])
+            self.canbus.set_kecepatan_motor([int(self.Kecepatan_base), int(-self.Kecepatan_base)])
+            # self.canbus.set_kecepatan_motor([int(self.Kecepatan_base - self.pid.compute(self.error)), int(-self.Kecepatan_base - self.pid.compute(self.error))])
         
-        if self.bridge.set_ID_b == True:
-            self.bridge.set_ID_card()
-        
+        self.bridge.rule_setting()
+        self.bridge.set_ID_card()
         self.select_track(self.sensor_posisi)
+        if self.bridge.b_calibration_s == True:
+            self.canbus.calibrate_sensor_magnet()
 
     def data_read(self):
         while True:
@@ -87,30 +96,54 @@ class main_robot():
             self.bridge.parameter_data()
             self.bridge.tegangan_robot(self.canbus.data_voltage[1], self.canbus.data_current[1], self.canbus.data_RFID)
             self.bridge.tegangan_robot(self.canbus.data_voltage[0], self.canbus.data_current[0], self.canbus.data_RFID)
+            self.bridge.sensor_magnet_data(self.canbus.sensor[0], self.canbus.sensor[1])
     
     def convert_to_RPM(self, data):
-        with open('config/robot_configure.json', 'r') as file:
-            data = json.load(file)
-        return data * 60 * 25 / data['Wheel_Diameter'] / math.pi
+        return data * 60 * 25 / self.bridge.wheel_diameter / math.pi
     
     def action_mode(self, action):
         if action == "Stop":
             self.Kecepatan_base = 0.0
         elif action == "Left":
             self.sensor_posisi[0] = True
-            self.Kecepatan_base = self.convert_to_RPM(self.bridge.Kecepatan * 2/5)
+            self.Kecepatan_base = self.convert_to_RPM(self.bridge.Kecepatan * 1/5)
         elif action == "Right":
-            self.sensor_posisi[1] = True
-            self.Kecepatan_base = self.convert_to_RPM(self.bridge.Kecepatan * 2/5)
-        else:
             self.sensor_posisi = [0, 0]
-            self.Kecepatan_base = self.convert_to_RPM(self.bridge.Kecepatan)
+            self.Kecepatan_base = self.convert_to_RPM(self.bridge.Kecepatan * 1/5)
+        elif action == "LeftR":
+            if self.canbus.flag[-3] == bin(1)[2:]:
+                self.turn = True
+                self.previous_time = time.time() * 1000
+            if (time.time() * 1000 - self.previous_time) < 2000:
+                self.canbus.set_kecepatan_motor([-int(self.convert_to_RPM(self.bridge.Kecepatan)), -int(self.convert_to_RPM(self.bridge.Kecepatan))])
+            else:
+                if self.canbus.flag[-2] == bin(0)[2:]:
+                    self.canbus.set_kecepatan_motor([-int(self.convert_to_RPM(self.bridge.Kecepatan * 3/5)), -int(self.convert_to_RPM(self.bridge.Kecepatan * 3/5))])
+                else:
+                    self.turn = False
+                    self.Kecepatan_base = self.convert_to_RPM(self.bridge.Kecepatan)
+        elif action == "RightR":
+            if self.canbus.flag[-4] == bin(1)[2:]:
+                self.turn = True
+                self.previous_time = time.time() * 1000
+            if (time.time() * 1000 - self.previous_time) < 2000:
+                self.canbus.set_kecepatan_motor([int(self.convert_to_RPM(self.bridge.Kecepatan)), int(self.convert_to_RPM(self.bridge.Kecepatan))])
+            else:
+                if self.canbus.flag[-2] == bin(0)[2:]:
+                    self.canbus.set_kecepatan_motor([int(self.convert_to_RPM(self.bridge.Kecepatan * 3/5)), int(self.convert_to_RPM(self.bridge.Kecepatan * 3/5))])
+                else:
+                    self.turn = False
+                    self.Kecepatan_base = self.convert_to_RPM(self.bridge.Kecepatan)
 
-    def mode_run(self, file_path, data):
+    def mode_run(self, file_path, key):
         with open(file_path, 'r') as file:
             config = json.load(file)
-        if str(data) in config:
-            self.action_mode(config[str(data)])
+        if str(key) in config:
+            self.action_mode(config[str(key)])
+        else: 
+            self.turn = False
+            self.sensor_posisi = [1, 0]
+            self.Kecepatan_base = self.convert_to_RPM(self.bridge.Kecepatan)
     
     def select_track(self, track):
         if track[0] == 1 and track[1] == 0:

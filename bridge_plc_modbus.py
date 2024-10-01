@@ -5,22 +5,23 @@ import serial
 m_reg = 3072
 v_reg = 512
 
-PID_reg = [1000, 1002, 1004, 1006]
-VI_reg = [1014, 1016]
-c_kecepatan_reg = 1018
-
 class bridge_hub():
 
     PID = [0.0, 0.0, 0.0]
     Kecepatan = 0.0
     c_kecepatan = 0.0
+    low_voltage = 0.0
+    wheel_diameter = 0.0
     dir_data = [False, False, False]
     Kontrol_data = [False, False, False, False]
     Obstacel_data = [False, False]
 
+    NODE_data = [False, False, False]
+
     start_b = False
     manual_b = False
     set_ID_b = False
+    b_calibration_s = False
 
     def __init__(self):
         self.client = ModbusSerialClient(port='/dev/serial/by-path/platform-fd500000.pcie-pci-0000:01:00.0-usb-0:1.1:1.0-port0', baudrate=115200, parity='N', stopbits=1)
@@ -29,24 +30,34 @@ class bridge_hub():
         self.connection = self.client.connected 
 
     def parameter_data(self):
-        self.PID[0] = self.registers_to_float(self.client.read_holding_registers((v_reg + PID_reg[0]), 2, 1).registers)
-        self.PID[1] = self.registers_to_float(self.client.read_holding_registers((v_reg + PID_reg[1]), 2, 1).registers)
-        self.PID[2] = self.registers_to_float(self.client.read_holding_registers((v_reg + PID_reg[2]), 2, 1).registers)
-        self.Kecepatan = self.registers_to_float(self.client.read_holding_registers((v_reg + PID_reg[3]), 2, 1).registers)
-        self.c_kecepatan = self.registers_to_float(self.client.read_holding_registers((v_reg + c_kecepatan_reg), 2, 1).registers)
+        self.PID[0] = self.registers_to_float(self.client.read_holding_registers((v_reg + 1000), 2, 1).registers)
+        self.PID[1] = self.registers_to_float(self.client.read_holding_registers((v_reg + 1002), 2, 1).registers)
+        self.PID[2] = self.registers_to_float(self.client.read_holding_registers((v_reg + 1004), 2, 1).registers)
+        self.Kecepatan = self.registers_to_float(self.client.read_holding_registers((v_reg + 1006), 2, 1).registers)
+        self.wheel_diameter = self.registers_to_float(self.client.read_holding_registers((v_reg + 1008), 2, 1).registers)
+        self.low_voltage = self.registers_to_float(self.client.read_holding_registers((v_reg + 1010), 2, 1).registers)
+        self.c_kecepatan = self.registers_to_float(self.client.read_holding_registers((v_reg + 1012), 2, 1).registers)
 
         self.Obstacel_data = self.client.read_coils((m_reg + 11), 2, 1).bits
         self.Kontrol_data = self.client.read_coils((m_reg + 22), 4, 1).bits
         self.manual_b = self.client.read_coils((m_reg + 76), 1, 1).bits[0]
         self.set_ID_b = self.client.read_coils((m_reg + 78), 1, 1).bits[0]
         self.start_b = self.client.read_coils(m_reg, 1, 1).bits[0]
+        self.NODE_data = self.client.read_coils((m_reg + 80), 3, 1).bits
+        self.b_calibration_s = self.client.read_coils((m_reg + 84), 1, 1).bits[0]
 
     def tegangan_robot(self, tegangan, arus, ac_ID):
         if self.connection:
-            self.client.write_registers((v_reg + VI_reg[1]), self.float_to_registers(tegangan), 1)
-            self.client.write_registers((v_reg + VI_reg[0]), self.float_to_registers(arus), 1) 
-            self.client.write_register((v_reg + 1020), ac_ID, 1)       
-    
+            self.client.write_registers((v_reg + 8), self.float_to_registers(tegangan), 1)
+            self.client.write_registers((v_reg + 10), self.float_to_registers(arus), 1) 
+            self.client.write_register((v_reg + 14), ac_ID, 1)   
+
+    def rule_setting(self):
+        if self.connection:
+            if self.NODE_data[2] == True:
+                for i in range(5):
+                    self.client.write_register((v_reg + 16 + i), 0, 1)
+                
     def buzzer_select(self, data):
         if self.connection:
             if data == 'S1':
@@ -61,6 +72,17 @@ class bridge_hub():
                 voice = [0, 0, 0, 0]
             self.client.write_coils((m_reg + 3), voice, 1)
     
+    def convert_signed(self, num):
+        if num < 0:
+            return 0xFFFF + num + 1
+        else:
+            return num
+    
+    def sensor_magnet_data(self, right, left):
+        if self.connection:
+            self.client.write_register((v_reg + 12), self.convert_signed(right), 1)
+            self.client.write_register((v_reg + 13), self.convert_signed(left), 1)
+    
     def direction_indicator(self, data):
         if data == 'right':
             dir_data = [1, 0]
@@ -71,7 +93,9 @@ class bridge_hub():
         self.client.write_coils((m_reg + 27), dir_data, 1)
     
     def set_ID_card(self):
-        self.RFID_ss.set_ID(int(self.client.read_holding_registers((v_reg + 1021), 1, 1).registers[0]))
+        if self.connection:
+            if self.set_ID_b == True:
+                self.RFID_ss.set_ID(int(self.client.read_holding_registers((v_reg + 15), 1, 1).registers[0]))
 
     def float_to_registers(self, float_value):
         float_bytes = struct.pack('>f', float_value)  

@@ -27,11 +27,12 @@ class CAN_setting():
                 time.sleep(0.5)
 
         # Variabel Data Sensor
-        self.sensor = np.zeros(4).astype(int)
+        self.sensor = np.zeros(3).astype(int)
         self.data_voltage = np.zeros(2).astype(float)
         self.data_current = np.zeros(2).astype(float)
         self.data_RFID = 0
         self.strengt_RFID = 0
+        self.flag = bin(0)
 
     def set_kecepatan_motor(self, speed):
         if self.can_open == True:
@@ -49,7 +50,8 @@ class CAN_setting():
             if msg_recv.arbitration_id == CAN_ID_sensor:
                 right_track = msg_recv.data[0] - msg_recv.data[1]
                 left__track = msg_recv.data[2] - msg_recv.data[3]
-                self.sensor = [int(right_track), int(left__track), int((right_track + left__track) * 0.5), msg_recv.data[4]]
+                self.sensor = [int(right_track), int(left__track), int((right_track + left__track) * 0.5)]
+                self.flag = bin(msg_recv.data[4])[2:]
             if msg_recv.arbitration_id == CAN_ID_power[0]:
                 self.data_voltage[0] = (msg_recv.data[0] << 0 | msg_recv.data[1] << 8) * 0.1
                 self.data_current[0] = (msg_recv.data[2] << 0 | msg_recv.data[3] << 8 | msg_recv.data[4] << 16) * 0.001
@@ -70,8 +72,10 @@ class CAN_setting():
     def right_data_sensor(self):
         return self.sensor[1]
     
-    def flag__data_sensor(self):
-        return self.sensor[3]
+    def calibrate_sensor_magnet(self):
+        if self.can_open == True:
+            self.bus.send(can.Message(arbitration_id=0x606, data=[0x2f, 0x20, 0x20, 0x00], extended_id=False))
+    
     
         
 
