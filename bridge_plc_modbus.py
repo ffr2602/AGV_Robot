@@ -22,6 +22,7 @@ class bridge_hub():
     manual_b = False
     set_ID_b = False
     b_calibration_s = False
+    b_unlock = False
 
     def __init__(self):
         self.client = ModbusSerialClient(port='/dev/serial/by-path/platform-fd500000.pcie-pci-0000:01:00.0-usb-0:1.1:1.0-port0', baudrate=115200, parity='N', stopbits=1)
@@ -45,6 +46,7 @@ class bridge_hub():
         self.start_b = self.client.read_coils(m_reg, 1, 1).bits[0]
         self.NODE_data = self.client.read_coils((m_reg + 80), 3, 1).bits
         self.b_calibration_s = self.client.read_coils((m_reg + 84), 1, 1).bits[0]
+        self.b_unlock = self.client.read_coils((m_reg + 85), 1, 1).bits[0]
 
     def tegangan_robot(self, tegangan, arus, ac_ID):
         if self.connection:

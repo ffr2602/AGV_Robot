@@ -73,6 +73,8 @@ class main_robot():
         self.select_track(self.sensor_posisi)
         if self.bridge.b_calibration_s == True:
             self.canbus.calibrate_sensor_magnet()
+        if self.bridge.b_unlock == True:
+            self.canbus.unlock_break()
 
     def data_read(self):
         while True:

@@ -80,6 +80,17 @@ class CAN_setting():
         if self.can_open == True:
             self.bus.send(can.Message(arbitration_id=0x000, data=[0x80, 0x00], extended_id=False))
     
+    def unlock_break(self):
+        if self.can_open == True:
+            for i in range(len(CAN_ID_first_set)):
+                self.bus.send(can.Message(arbitration_id=0x000, data=[0x01, i], extended_id=False))
+                self.bus.send(can.Message(arbitration_id=CAN_ID_first_set[i], data=[0x0f,0x00,0x00,0x00,0x01,0x00], extended_id=False))
+                time.sleep(0.5)
+            for i in range(len(CAN_ID_first_set)):
+                self.bus.send(can.Message(arbitration_id=CAN_ID_first_set[i], data=[0x0f,0x00,0x00,0x00,0x00,0x00], extended_id=False))
+                time.sleep(0.5)
+
+    
     
         
 
