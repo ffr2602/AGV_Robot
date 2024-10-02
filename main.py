@@ -72,8 +72,7 @@ class main_robot():
                 else:
                     self.Kecepatan_base = 0.0
                     self.bridge.buzzer_select('None')
-                    self.canbus.set_kecepatan_motor([int(self.Kecepatan_base), int(-self.Kecepatan_base)])
-                    # self.canbus.set_kecepatan_motor([int(self.Kecepatan_base - self.pid.compute(self.error)), int(-self.Kecepatan_base - self.pid.compute(self.error))])
+                    self.canbus.set_kecepatan_motor([int(self.Kecepatan_base - self.pid.compute(self.error)), int(-self.Kecepatan_base - self.pid.compute(self.error))])
         else:
             self.Kecepatan_base = 0.0
             self.bridge.buzzer_select('S2')
@@ -104,36 +103,36 @@ class main_robot():
     def action_mode(self, action):
         if action == "Stop":
             self.Kecepatan_base = 0.0
-        elif action == "Left":
-            self.sensor_posisi[0] = True
-            self.Kecepatan_base = self.convert_to_RPM(self.bridge.Kecepatan * 1/5)
-        elif action == "Right":
-            self.sensor_posisi = [0, 0]
-            self.Kecepatan_base = self.convert_to_RPM(self.bridge.Kecepatan * 1/5)
-        elif action == "LeftR":
+        elif action == "LeftL":
+            self.Kecepatan_base = self.convert_to_RPM(0.10)
             if self.canbus.flag[-3] == bin(1)[2:]:
                 self.turn = True
                 self.previous_time = time.time() * 1000
             if (time.time() * 1000 - self.previous_time) < 2000:
-                self.canbus.set_kecepatan_motor([-int(self.convert_to_RPM(self.bridge.Kecepatan)), -int(self.convert_to_RPM(self.bridge.Kecepatan))])
+                self.canbus.set_kecepatan_motor([-int(self.Kecepatan_base), -int(self.Kecepatan_base)])
             else:
                 if self.canbus.flag[-2] == bin(0)[2:]:
-                    self.canbus.set_kecepatan_motor([-int(self.convert_to_RPM(self.bridge.Kecepatan * 3/5)), -int(self.convert_to_RPM(self.bridge.Kecepatan * 3/5))])
+                    self.canbus.set_kecepatan_motor([-int(self.Kecepatan_base * 2/5), -int(self.Kecepatan_base * 2/5)])
                 else:
                     self.turn = False
-                    self.Kecepatan_base = self.convert_to_RPM(self.bridge.Kecepatan)
-        elif action == "RightR":
+        elif action == "RightL":
+            self.Kecepatan_base = self.convert_to_RPM(0.10)
             if self.canbus.flag[-4] == bin(1)[2:]:
                 self.turn = True
                 self.previous_time = time.time() * 1000
             if (time.time() * 1000 - self.previous_time) < 2000:
-                self.canbus.set_kecepatan_motor([int(self.convert_to_RPM(self.bridge.Kecepatan)), int(self.convert_to_RPM(self.bridge.Kecepatan))])
+                self.canbus.set_kecepatan_motor([int(self.Kecepatan_base), int(self.Kecepatan_base)])
             else:
                 if self.canbus.flag[-2] == bin(0)[2:]:
-                    self.canbus.set_kecepatan_motor([int(self.convert_to_RPM(self.bridge.Kecepatan * 3/5)), int(self.convert_to_RPM(self.bridge.Kecepatan * 3/5))])
+                    self.canbus.set_kecepatan_motor([int(self.Kecepatan_base * 2/5), int(self.Kecepatan_base * 2/5)])
                 else:
                     self.turn = False
-                    self.Kecepatan_base = self.convert_to_RPM(self.bridge.Kecepatan)
+        elif action == "LeftR":
+            self.sensor_posisi = [0, 1]
+            self.Kecepatan_base = self.convert_to_RPM(0.10)
+        elif action == "RightR":
+            self.sensor_posisi = [1, 0]
+            self.Kecepatan_base = self.convert_to_RPM(0.10)
 
     def mode_run(self, file_path, key):
         with open(file_path, 'r') as file:

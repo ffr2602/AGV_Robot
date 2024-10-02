@@ -1,6 +1,6 @@
 {
-    "1" : "Left",
-    "2" : "Right",
-    "3" : "LeftR",
-    "4" : "RightR"
+    "1" : "LeftR",
+    "2" : "RightR",
+    "3" : "LeftL",
+    "4" : "RightL"
 }
