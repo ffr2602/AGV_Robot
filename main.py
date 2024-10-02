@@ -31,7 +31,6 @@ class main_robot():
         self.turn = False
 
     def robot(self):
-        # print(str(self.canbus.flag[-2]) + " " + str(self.canbus.flag[-3]) + " " + str(self.canbus.data_RFID))
         if self.canbus.data_voltage[0] > self.bridge.low_voltage and self.canbus.data_voltage[1] > self.bridge.low_voltage:
 
             # Mode Kontrol Robot
@@ -43,17 +42,7 @@ class main_robot():
             # Robot Main
             if self.mode_control == False and self.bridge.start_b == True:     
                 if self.canbus.flag[-2] != bin(0)[2:] or self.turn == True:
-                    if self.bridge.Obstacel_data[1] == False:
-                        if self.bridge.Obstacel_data[0] == True:
-                            self.bridge.buzzer_select('S1')
-                            self.Kecepatan_base = self.convert_to_RPM(self.bridge.Kecepatan * 1/5)
-                        else:
-                            self.bridge.buzzer_select('S4')
-                            self.mode_run('/home/runindo/riset/AGV_Robot/rule/node.json', self.canbus.data_RFID)                        
-                    else:
-                        self.Kecepatan_base = 0.0
-                        self.bridge.buzzer_select('S2')
-                        self.canbus.set_kecepatan_motor([int(self.Kecepatan_base - self.pid.compute(self.error)), int(-self.Kecepatan_base - self.pid.compute(self.error))])
+                    self.mode_run('/home/runindo/riset/AGV_Robot/rule/node.json', self.canbus.data_RFID)
                     if self.turn == False:
                         self.canbus.set_kecepatan_motor([int(self.Kecepatan_base - self.pid.compute(self.error)), int(-self.Kecepatan_base - self.pid.compute(self.error))])
                 else:
@@ -102,12 +91,13 @@ class main_robot():
     
     def action_mode(self, action):
         if action == "Stop":
-            self.Kecepatan_base = 0.0
+            self.obstacle_d(0.0, 2/5)
         elif action == "LeftL":
-            self.Kecepatan_base = self.convert_to_RPM(0.10)
+            self.obstacle_d(0.10, 2/5)
             if self.canbus.flag[-3] == bin(1)[2:]:
-                self.turn = True
-                self.previous_time = time.time() * 1000
+                if self.canbus.flag[-2] == bin(1)[2:]:
+                    self.turn = True
+                    self.previous_time = time.time() * 1000
             if (time.time() * 1000 - self.previous_time) < 2000:
                 self.canbus.set_kecepatan_motor([-int(self.Kecepatan_base), -int(self.Kecepatan_base)])
             else:
@@ -116,10 +106,11 @@ class main_robot():
                 else:
                     self.turn = False
         elif action == "RightL":
-            self.Kecepatan_base = self.convert_to_RPM(0.10)
+            self.obstacle_d(0.10, 2/5)
             if self.canbus.flag[-4] == bin(1)[2:]:
-                self.turn = True
-                self.previous_time = time.time() * 1000
+                if self.canbus.flag[-2] == bin(1)[2:]:
+                    self.turn = True
+                    self.previous_time = time.time() * 1000
             if (time.time() * 1000 - self.previous_time) < 2000:
                 self.canbus.set_kecepatan_motor([int(self.Kecepatan_base), int(self.Kecepatan_base)])
             else:
@@ -129,10 +120,10 @@ class main_robot():
                     self.turn = False
         elif action == "LeftR":
             self.sensor_posisi = [0, 1]
-            self.Kecepatan_base = self.convert_to_RPM(0.10)
+            self.obstacle_d(0.10, 2/5)
         elif action == "RightR":
             self.sensor_posisi = [1, 0]
-            self.Kecepatan_base = self.convert_to_RPM(0.10)
+            self.obstacle_d(0.10, 2/5)
 
     def mode_run(self, file_path, key):
         with open(file_path, 'r') as file:
@@ -142,7 +133,7 @@ class main_robot():
         else: 
             self.turn = False
             self.sensor_posisi = [1, 0]
-            self.Kecepatan_base = self.convert_to_RPM(self.bridge.Kecepatan)
+            self.obstacle_d(self.bridge.Kecepatan, 2/10)
     
     def select_track(self, track):
         if track[0] == 1 and track[1] == 0:
@@ -154,6 +145,18 @@ class main_robot():
         else:
              self.error = self.canbus.center_data_sensor()
              self.bridge.direction_indicator('center')
+    
+    def obstacle_d(self, data, low):
+        if self.bridge.Obstacel_data[1] == False:
+            if self.bridge.Obstacel_data[0] == True:
+                self.Kecepatan_base = self.convert_to_RPM(data) * low
+                self.bridge.buzzer_select('S1')
+            else:
+                self.Kecepatan_base = self.convert_to_RPM(data)                      
+                self.bridge.buzzer_select('S4')
+        else:
+            self.Kecepatan_base = 0.0
+            self.bridge.buzzer_select('S2')
 
 if __name__ == '__main__':
     app = main_robot()
