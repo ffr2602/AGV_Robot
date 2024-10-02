@@ -76,6 +76,10 @@ class CAN_setting():
         if self.can_open == True:
             self.bus.send(can.Message(arbitration_id=0x606, data=[0x2f, 0x20, 0x20, 0x00], extended_id=False))
     
+    def break_system(self):
+        if self.can_open == True:
+            self.bus.send(can.Message(arbitration_id=0x000, data=[0x80, 0x00], extended_id=False))
+    
     
         
 

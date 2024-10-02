@@ -66,7 +66,7 @@ class main_robot():
             self.Kecepatan_base = 0.0
             self.bridge.buzzer_select('S2')
             self.canbus.set_kecepatan_motor([int(self.Kecepatan_base), int(-self.Kecepatan_base)])
-            # self.canbus.set_kecepatan_motor([int(self.Kecepatan_base - self.pid.compute(self.error)), int(-self.Kecepatan_base - self.pid.compute(self.error))])
+            self.canbus.break_system()
         
         self.bridge.rule_setting()
         self.bridge.set_ID_card()
