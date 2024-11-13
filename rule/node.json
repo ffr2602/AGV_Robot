@@ -2,111 +2,23 @@
     "1": {
         "1": {
             "motion_1": [
-                "forward",
+                "",
                 0
             ],
             "motion_2": [
+                "speed",
+                0
+            ],
+            "motion_3": [
                 "stick-up",
                 0
             ],
-            "motion_3": [
-                "",
-                0
-            ],
             "motion_4": [
-                "",
+                "music",
                 0
             ],
             "motion_5": [
-                "",
-                0
-            ]
-        },
-        "2": {
-            "motion_1": [
-                "forward",
-                0
-            ],
-            "motion_2": [
-                "",
-                0
-            ],
-            "motion_3": [
-                "",
-                0
-            ],
-            "motion_4": [
-                "",
-                0
-            ],
-            "motion_5": [
-                "",
-                0
-            ]
-        },
-        "3": {
-            "motion_1": [
-                "forward",
-                0
-            ],
-            "motion_2": [
-                "stick-up",
-                0
-            ],
-            "motion_3": [
-                "",
-                0
-            ],
-            "motion_4": [
-                "",
-                0
-            ],
-            "motion_5": [
-                "",
-                0
-            ]
-        },
-        "4": {
-            "motion_1": [
-                "stop",
-                0
-            ],
-            "motion_2": [
-                "stick-up",
-                0
-            ],
-            "motion_3": [
-                "",
-                0
-            ],
-            "motion_4": [
-                "",
-                0
-            ],
-            "motion_5": [
-                "",
-                0
-            ]
-        },
-        "5": {
-            "motion_1": [
-                "stop",
-                0
-            ],
-            "motion_2": [
-                "stick-up",
-                0
-            ],
-            "motion_3": [
-                "",
-                0
-            ],
-            "motion_4": [
-                "",
-                0
-            ],
-            "motion_5": [
-                "",
+                "obs-set",
                 0
             ]
         }
