@@ -12,15 +12,6 @@ from threading import Thread
 slave = 1
 input = 0x0C00
 output = 0x0C00
-conn = ModbusTcpClient(host="192.168.1.111")
-serial_kwargs = {
-    "port": "/dev/ttyS0",
-    "baudrate": 57600,
-    "parity": "N",
-    "stopbits": 1,
-    "bytesize": 8,
-    "framer": None,
-}
 
 store = ModbusSlaveContext(
     di=ModbusSequentialDataBlock(0, [0] * 10000),

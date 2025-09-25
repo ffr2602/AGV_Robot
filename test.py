@@ -8,8 +8,7 @@ import json
 import time
 import struct
 
-
-
+conn = ModbusTcpClient(host=io_map['modbus']['TCP']['host'], port=io_map['modbus']['TCP']['port'])
 class robot():
 
     # Parameter ==================================
@@ -29,6 +28,7 @@ class robot():
 
     command = False
     bumper = False
+    
 
     # ============================================
     def __init__(self):
@@ -97,14 +97,10 @@ class robot():
             if emergency_stop(conn=conn) != 1:
                 self.canbus.set_kecepatan_motor([0, 0])
                 indicator(conn, data="R")
-                print(emergency_stop(conn))
+            elif get_single_value(slave_map_io['map_io']['setting']['obstacle']['fc'], slave_map_io['map_io']['setting']['obstacle']['addr']) != 0:
+                pass
             else:
                 indicator(conn, data="OFF")
-
-            # elif get_single_value(slave_map_io['map_io']['setting']['obstacle']['fc'], slave_map_io['map_io']['setting']['obstacle']['addr']) != 0:
-            #     pass
-            # else:
-            #     pass
             data = [
                 get_cpu_temperature(), 
                 self.canbus.temp_driver, 
@@ -112,11 +108,10 @@ class robot():
                 self.canbus.error[0], 
                 self.canbus.current[1], 
                 self.canbus.current[0], 
-                0, 
+                conn.connected, 
                 self.canbus.can_open, 
                 self.bumper
             ]
-            # print(data)
             status(data)
             await asyncio.sleep(0.001)
 
