@@ -1,0 +1,87 @@
+{
+    "modbus": {
+        "RTU": {
+            "port": "COM6",
+            "baudrate": 57600,
+            "parity": "N",
+            "stopbits": 1,
+            "bytesize": 8
+        },
+        "TCP": {
+            "host": "127.0.0.1",
+            "port": 502
+        }
+    },
+    "inputs": {
+        "start": {
+            "address": 100
+        },
+        "stop": {
+            "address": 102
+        },
+        "emergency_stop": {
+            "address": 4
+        },
+        "reset": {
+            "address": 106
+        },
+        "warning_signal": {
+            "address": 108
+        },
+        "stop_signal": {
+            "address": 110
+        },
+        "wheel": {
+            "wheel_button": {
+                "address": 112
+            },
+            "wheel_up": {
+                "address": 114
+            },
+            "wheel_down": {
+                "address": 116
+            }
+        },
+        "hook": {
+            "hook_up": {
+                "address": 120
+            },
+            "hook_down": {
+                "address": 122
+            }
+        }
+    },
+    "outputs": {
+        "wheel": {
+            "address": 200
+        },
+        "hook": {
+            "address": 201
+        },
+        "lamp": {
+            "red": {
+                "address": 100
+            },
+            "green": {
+                "address": 101
+            },
+            "yellow": {
+                "address": 102
+            }
+        },
+        "sound": {
+            "sound1": {
+                "address": 210
+            },
+            "sound2": {
+                "address": 211
+            },
+            "sound3": {
+                "address": 212
+            },
+            "sound4": {
+                "address": 213
+            }
+        }
+    }
+}

@@ -1,0 +1,262 @@
+{
+    "modbus": {
+        "RTU": {
+            "port": "/dev/ttyS0",
+            "baudrate": 57600,
+            "parity": "N",
+            "stopbits": 1,
+            "bytesize": 8,
+            "framer": 0
+        },
+        "TCP": {
+            "address": "0.0.0.0",
+            "port": 5000
+        }
+    },
+    "map_io": {
+        "status": {
+            "temp": {
+                "CPU": {
+                    "addr": 0,
+                    "fc": 4
+                },
+                "Driver": {
+                    "addr": 2,
+                    "fc": 4
+                }
+            },
+            "motor": {
+                "fault": {
+                    "m1": {
+                        "addr": 4,
+                        "fc": 4
+                    },
+                    "m2": {
+                        "addr": 5,
+                        "fc": 4
+                    }
+                },
+                "current": {
+                    "m1": {
+                        "addr": 6,
+                        "fc": 4
+                    },
+                    "m2": {
+                        "addr": 8,
+                        "fc": 4
+                    }
+                }
+            },
+            "comm": {
+                "RTU": {
+                    "addr": 9,
+                    "fc": 2
+                },
+                "TCP": {
+                    "addr": 10,
+                    "fc": 2
+                },
+                "CAN": {
+                    "addr": 11,
+                    "fc": 2
+                },
+                "bumper": {
+                    "addr": 12,
+                    "fc": 2
+                }
+            }
+        },
+        "dashboard": {
+            "route": {
+                "addr": 147,
+                "fc": 3
+            },
+            "speed": {
+                "addr": 148,
+                "fc": 3
+            },
+            "rfid": {
+                "addr": 17,
+                "fc": 4
+            },
+            "stick": {
+                "addr": 17,
+                "fc": 4
+            },
+            "state": {
+                "forward": {
+                    "addr": 0,
+                    "fc": 2
+                },
+                "in_progress": {
+                    "addr": 1,
+                    "fc": 2
+                },
+                "running": {
+                    "addr": 2,
+                    "fc": 2
+                },
+                "out_of_track": {
+                    "addr": 3,
+                    "fc": 2
+                }
+            },
+            "alarm": {
+                "slow_area": {
+                    "addr": 4,
+                    "fc": 2
+                },
+                "stop_area": {
+                    "addr": 5,
+                    "fc": 2
+                },
+                "estop_area": {
+                    "addr": 6,
+                    "fc": 2
+                },
+                "alarm_fault": {
+                    "addr": 7,
+                    "fc": 2
+                },
+                "estop_indicator": {
+                    "addr": 8,
+                    "fc": 2
+                }
+            },
+            "clock": {
+                "hour": {
+                    "addr": 14,
+                    "fc": 4
+                },
+                "minute": {
+                    "addr": 15,
+                    "fc": 4
+                },
+                "second": {
+                    "addr": 16,
+                    "fc": 4
+                }
+            }
+        },
+        "setting": {
+            "idcar": {
+                "addr": 140,
+                "fc": 3
+            },
+            "accel": {
+                "addr": 141,
+                "fc": 3
+            },
+            "music": {
+                "addr": 142,
+                "fc": 3
+            },
+            "track": {
+                "addr": 143,
+                "fc": 3
+            },
+            "obstacle": {
+                "addr": 144,
+                "fc": 3
+            }
+        },
+        "node": {
+            "route": {
+                "addr": 137,
+                "fc": 3
+            },
+            "pre_rfid": {
+                "addr": 138,
+                "fc": 3
+            },
+            "rfid": {
+                "addr": 139,
+                "fc": 3
+            },
+            "view_route": {
+                "start": {
+                    "addr": 1,
+                    "fc": 3
+                },
+                "end": {
+                    "addr": 100,
+                    "fc": 3
+                }
+            },
+            "motion": {
+                "1": {
+                    "name": {
+                        "addr": 101,
+                        "fc": 3
+                    },
+                    "parameter": {
+                        "addr": 132,
+                        "fc": 3
+                    }
+                },
+                "2": {
+                    "name": {
+                        "addr": 107,
+                        "fc": 3
+                    },
+                    "parameter": {
+                        "addr": 133,
+                        "fc": 3
+                    }
+                },
+                "3": {
+                    "name": {
+                        "addr": 113,
+                        "fc": 3
+                    },
+                    "parameter": {
+                        "addr": 134,
+                        "fc": 3
+                    }
+                },
+                "4": {
+                    "name": {
+                        "addr": 119,
+                        "fc": 3
+                    },
+                    "parameter": {
+                        "addr": 135,
+                        "fc": 3
+                    }
+                },
+                "5": {
+                    "name": {
+                        "addr": 125,
+                        "fc": 3
+                    },
+                    "parameter": {
+                        "addr": 136,
+                        "fc": 3
+                    }
+                }
+            },
+            "button": {
+                "add&change": {
+                    "addr": 1,
+                    "fc": 1
+                },
+                "insert": {
+                    "addr": 2,
+                    "fc": 1
+                },
+                "delete": {
+                    "addr": 3,
+                    "fc": 1
+                },
+                "view": {
+                    "addr": 4,
+                    "fc": 1
+                },
+                "query": {
+                    "addr": 5,
+                    "fc": 1
+                }
+            }
+        }
+    }
+}
