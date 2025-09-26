@@ -150,6 +150,21 @@ def save_config():
         json.dump(config, json_file, indent=4)
 
 
+def get_single_coil_X0(addr):
+    return get_single_value(1, addr)
+
+
+def set_single_coil_X0(addr, data):
+    set_value(1, addr, [data])
+
+
+def set_single_coil_X1(addr, data):
+    set_value(2, addr, [data])
+
+
+def set_multiple_coil_X1(addr, data: list):
+    set_value(2, addr, data)
+
 # ============================ inputs ============================
 
 
@@ -172,7 +187,52 @@ def reset(conn: ModbusTcpClient | ModbusSerialClient):
     data = conn.read_coils(input + io_map['inputs']['reset']['address'])
     return data.bits[0]
 
+
+def Obstacle_warning(conn: ModbusTcpClient | ModbusSerialClient):
+    data = conn.read_coils(input + io_map['inputs']['obstacle_sensor']['warning']['address'])
+    return data.bits[0]
+
+
+def obstacle_stop(conn: ModbusTcpClient | ModbusSerialClient):
+    data = conn.read_coils(input + io_map['inputs']['obstacle_sensor']['stop']['address'])
+    return data.bits[0]
+
+
+def button_wheel(conn: ModbusTcpClient | ModbusSerialClient):
+    data = conn.read_coils(input + io_map['inputs']['wheel']['button']['address'])
+    return data.bits[0]
+
+
+def wheel_up(conn: ModbusTcpClient | ModbusSerialClient):
+    data = conn.read_coils(input + io_map['inputs']['wheel']['wheel_up']['address'])
+    return data.bits[0]
+
+
+def wheel_down(conn: ModbusTcpClient | ModbusSerialClient):
+    data = conn.read_coils(input + io_map['inputs']['wheel']['wheel_down']['address'])
+    return data.bits[0]
+
+
+def hook_up(conn: ModbusTcpClient | ModbusSerialClient):
+    data = conn.read_coils(input + io_map['inputs']['hook']['hook_up']['address'])
+    return data.bits[0]
+
+
+def hook_down(conn: ModbusTcpClient | ModbusSerialClient):
+    data = conn.read_coils(input + io_map['inputs']['hook']['hook_down']['address'])
+    return data.bits[0]
+
+
+
+
 # ============================ outputs ============================
+
+def wheel_c(conn: ModbusTcpClient | ModbusSerialClient, data: bool):
+    conn.write_coil(output + io_map['outputs']['wheel']['address'], data)
+
+
+def hook_c(conn: ModbusTcpClient | ModbusSerialClient, data: bool):
+    conn.write_coil(output + io_map['outputs']['hook']['address'], data)
 
 
 def indicator(conn: ModbusTcpClient | ModbusSerialClient, data: str):

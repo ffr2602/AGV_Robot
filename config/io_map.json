@@ -14,49 +14,51 @@
     },
     "inputs": {
         "start": {
-            "address": 100
+            "address": 0
         },
         "stop": {
-            "address": 102
+            "address": 1
+        },
+        "reset": {
+            "address": 2
         },
         "emergency_stop": {
             "address": 4
         },
-        "reset": {
-            "address": 106
-        },
-        "warning_signal": {
-            "address": 108
-        },
-        "stop_signal": {
-            "address": 110
+        "obstacle_sensor": {
+            "warning": {
+                "address": 5
+            },
+            "stop": {
+                "address": 11
+            }
         },
         "wheel": {
-            "wheel_button": {
-                "address": 112
+            "button": {
+                "address": 3
             },
             "wheel_up": {
-                "address": 114
+                "address": 10
             },
             "wheel_down": {
-                "address": 116
+                "address": 9
             }
         },
         "hook": {
             "hook_up": {
-                "address": 120
+                "address": 7
             },
             "hook_down": {
-                "address": 122
+                "address": 8
             }
         }
     },
     "outputs": {
         "wheel": {
-            "address": 200
+            "address": 15
         },
         "hook": {
-            "address": 201
+            "address": 108
         },
         "lamp": {
             "red": {

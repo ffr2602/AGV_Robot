@@ -83,6 +83,46 @@
                 "addr": 17,
                 "fc": 4
             },
+            "control": {
+                "start": {
+                    "addr": 8,
+                    "fc": 1
+                },
+                "stop": {
+                    "addr": 9,
+                    "fc": 1
+                },
+                "reset": {
+                    "addr": 10,
+                    "fc": 1
+                },
+                "wheel": {
+                    "addr": 11,
+                    "fc": 1
+                },
+                "hook": {
+                    "addr": 12,
+                    "fc": 1
+                },
+                "state": {
+                    "wheel_up": {
+                        "addr": 13,
+                        "fc": 2
+                    },
+                    "wheel_down": {
+                        "addr": 14,
+                        "fc": 2
+                    },
+                    "hook_up": {
+                        "addr": 15,
+                        "fc": 2
+                    },
+                    "hook_down": {
+                        "addr": 16,
+                        "fc": 2
+                    }
+                }
+            },
             "state": {
                 "forward": {
                     "addr": 0,
