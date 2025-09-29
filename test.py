@@ -10,31 +10,28 @@ import struct
 
 
 class robot():
-
-    # Parameter ==================================
+    # ==============================================================================
+    # ================================== Parameter ==================================
+    # ==============================================================================
     error = 0
+    previous_time = 0
     temp_buzzer = 0
     buzzer = False
     akselerasi = False
     temp_RFID = 0
     temp_SPEED = 0
-
     current_speed = [0, 0] 
     acceleration_rate = 35
-
-    wheel_temp = False
-
-    previous_time = 0
-
     command = False
     bumper = False
-    
-
     ssa__in = [True, True, True, False]
     lmp_out = [False, False, False]
     snd_out = [False, False, False, False] 
-    # ============================================
+    # ==============================================================================
+    # ==============================================================================
+    # ==============================================================================
     def __init__(self):
+        set_single_holding_register(slave_map_io['map_io']['dashboard']['speed']['addr'], config['Speed'])
         set_single_holding_register(slave_map_io['map_io']['setting']['idcar']['addr'], config['ID_CAR'])
         set_single_holding_register(slave_map_io['map_io']['setting']['accel']['addr'], config['Acceleration'])
         set_single_holding_register(slave_map_io['map_io']['setting']['music']['addr'], config['Default_Music'])
@@ -144,6 +141,7 @@ class robot():
                 self.ssa__in[1] = Obstacle_warning(conn)
                 self.ssa__in[2] = obstacle_stop(conn)
                 self.ssa__in[3] = bumper(conn)
+                set_single_discrete_input(slave_map_io['map_io']['dashboard']['alarm']['estop_indicator']['addr'], emergency_stop(conn))
                 # ======================================
                 # ================= WHEEL & HOOK CONTROL ======================================
                 # ================= WHEEL ======================================
@@ -182,6 +180,7 @@ class robot():
             route()
             self.canbus.read_data_sensor()
             set_single_discrete_input(slave_map_io['map_io']['dashboard']['rfid']['addr'], self.canbus.data_RFID)
+            set_multiple_input_registers(slave_map_io['map_io']['dashboard']['clock']['hour']['addr'], get_uptime())
 
             if self.ssa__in[3] == True:
                 self.bumper = True
@@ -190,7 +189,6 @@ class robot():
                 self.canbus.set_kecepatan_motor([0, 0])
                 self.snd_out = [0, 1, 0, 0]
                 self.lmp_out = [1, 0, 0]
-                self.akselerasi = False
             else:
                 
                 print((self.canbus.flag >> 1) & 1)
@@ -285,8 +283,8 @@ class robot():
 
 if __name__ == "__main__":
     app = robot()
-    Thread(target=app.motion_task_robot).start()
-    Thread(target=app.io_plc).start()
+    Thread(target=app.motion_task_robot, daemon=True).start()
+    Thread(target=app.io_plc, daemon=True).start()
     Thread(target=start_modbus_server_serial, args=(context, identity, slave_map_io['modbus']['RTU']), daemon=True).start()
     try:
         app.main_robot()
