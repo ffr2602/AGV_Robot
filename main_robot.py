@@ -306,11 +306,11 @@ class robot():
                         self.buzzer_selector(self.temp_buzzer)
                         self.buzzer = False
                         
-                    if (self.canbus.flag >> 1) & 1 == 0:
-                        self.indicator('R')
-                        self.buzzer_selector(1)
-                        self.current_speed = [0, 0]
-                        set_value(2, 8, [1])
+                    # if (self.canbus.flag >> 1) & 1 == 0:
+                    #     self.indicator('R')
+                    #     self.buzzer_selector(1)
+                    #     self.current_speed = [0, 0]
+                    #     set_value(2, 8, [1])
                 else:
                     self.indicator('OFF')
                     self.buzzer_selector(0)

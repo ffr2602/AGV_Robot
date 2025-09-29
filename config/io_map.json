@@ -25,6 +25,9 @@
         "emergency_stop": {
             "address": 4
         },
+        "bumper": {
+            "address": 6
+        },
         "obstacle_sensor": {
             "warning": {
                 "address": 5
@@ -58,7 +61,7 @@
             "address": 15
         },
         "hook": {
-            "address": 108
+            "address": 14
         },
         "lamp": {
             "red": {
@@ -73,16 +76,16 @@
         },
         "sound": {
             "sound1": {
-                "address": 210
+                "address": 103
             },
             "sound2": {
-                "address": 211
+                "address": 104
             },
             "sound3": {
-                "address": 212
+                "address": 105
             },
             "sound4": {
-                "address": 213
+                "address": 106
             }
         }
     }

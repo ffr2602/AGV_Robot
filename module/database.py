@@ -150,20 +150,72 @@ def save_config():
         json.dump(config, json_file, indent=4)
 
 
-def get_single_coil_X0(addr):
-    return get_single_value(1, addr)
+# ============================================================
+# ============================================================
+# ============================================================
 
 
-def set_single_coil_X0(addr, data):
-    set_value(1, addr, [data])
+# ============================== Coils ==============================
+
+def get_single_coil(addr):
+    return context[slave].getValues(1, addr, 1)[0] 
+
+def get_multiple_coils(addr, count):
+    return context[slave].getValues(1, addr, count)
+
+def set_single_coil(addr, value: bool):
+    context[slave].setValues(1, addr, [value])
+
+def set_multiple_coils(addr, value: list[bool]):
+    context[slave].setValues(1, addr, value)
+
+# ============================== Discrete Inputs ==============================
+
+def get_single_discrete_input(addr):
+    return context[slave].getValues(2, addr, 1)[0] 
+
+def get_multiple_discrete_inputs(addr, count):
+    return context[slave].getValues(2, addr, count)
+
+def set_single_discrete_input(addr, value: bool):
+    context[slave].setValues(2, addr, [value])
+
+def set_multiple_discrete_inputs(addr, value: list[bool]):
+    context[slave].setValues(2, addr, value)
+
+# ============================== Input Registers ==============================
+
+def get_single_input_register(addr):
+    return context[slave].getValues(4, addr, 1)[0] 
+
+def get_multiple_input_registers(addr, count):
+    return context[slave].getValues(4, addr, count)
+
+def set_single_input_register(addr, value: int):
+    context[slave].setValues(4, addr, [value])
+
+def set_multiple_input_registers(addr, value: list[int]):
+    context[slave].setValues(4, addr, value)
+
+# ============================== Holding Registers ==============================
+
+def get_single_holding_register(addr):
+    return context[slave].getValues(3, addr, 1)[0] 
+
+def get_multiple_holding_registers(addr, count):
+    return context[slave].getValues(3, addr, count)
+
+def set_single_holding_register(addr, value: int):
+    context[slave].setValues(3, addr, [value])
+
+def set_multiple_holding_registers(addr, value: list[int]):
+    context[slave].setValues(3, addr, value)
 
 
-def set_single_coil_X1(addr, data):
-    set_value(2, addr, [data])
+# ============================================================
+# ============================================================
+# ============================================================
 
-
-def set_multiple_coil_X1(addr, data: list):
-    set_value(2, addr, data)
 
 # ============================ inputs ============================
 
@@ -172,57 +224,49 @@ def emergency_stop(conn: ModbusTcpClient | ModbusSerialClient):
     data = conn.read_coils(input + io_map['inputs']['emergency_stop']['address'])
     return data.bits[0]
 
-
 def start(conn: ModbusTcpClient | ModbusSerialClient):
     data = conn.read_coils(input + io_map['inputs']['start']['address'])
     return data.bits[0]
-
 
 def stop(conn: ModbusTcpClient | ModbusSerialClient):
     data = conn.read_coils(input + io_map['inputs']['stop']['address'])
     return data.bits[0]
 
-
 def reset(conn: ModbusTcpClient | ModbusSerialClient):
     data = conn.read_coils(input + io_map['inputs']['reset']['address'])
     return data.bits[0]
-
 
 def Obstacle_warning(conn: ModbusTcpClient | ModbusSerialClient):
     data = conn.read_coils(input + io_map['inputs']['obstacle_sensor']['warning']['address'])
     return data.bits[0]
 
-
 def obstacle_stop(conn: ModbusTcpClient | ModbusSerialClient):
     data = conn.read_coils(input + io_map['inputs']['obstacle_sensor']['stop']['address'])
     return data.bits[0]
-
 
 def button_wheel(conn: ModbusTcpClient | ModbusSerialClient):
     data = conn.read_coils(input + io_map['inputs']['wheel']['button']['address'])
     return data.bits[0]
 
-
 def wheel_up(conn: ModbusTcpClient | ModbusSerialClient):
     data = conn.read_coils(input + io_map['inputs']['wheel']['wheel_up']['address'])
     return data.bits[0]
-
 
 def wheel_down(conn: ModbusTcpClient | ModbusSerialClient):
     data = conn.read_coils(input + io_map['inputs']['wheel']['wheel_down']['address'])
     return data.bits[0]
 
-
 def hook_up(conn: ModbusTcpClient | ModbusSerialClient):
     data = conn.read_coils(input + io_map['inputs']['hook']['hook_up']['address'])
     return data.bits[0]
-
 
 def hook_down(conn: ModbusTcpClient | ModbusSerialClient):
     data = conn.read_coils(input + io_map['inputs']['hook']['hook_down']['address'])
     return data.bits[0]
 
-
+def bumper(conn: ModbusTcpClient | ModbusSerialClient):
+    data = conn.read_coils(input + io_map['inputs']['bumper']['address'])
+    return data.bits[0]
 
 
 # ============================ outputs ============================
@@ -230,84 +274,47 @@ def hook_down(conn: ModbusTcpClient | ModbusSerialClient):
 def wheel_c(conn: ModbusTcpClient | ModbusSerialClient, data: bool):
     conn.write_coil(output + io_map['outputs']['wheel']['address'], data)
 
-
 def hook_c(conn: ModbusTcpClient | ModbusSerialClient, data: bool):
     conn.write_coil(output + io_map['outputs']['hook']['address'], data)
 
+def indicator(conn: ModbusTcpClient | ModbusSerialClient, data: list[bool]):
+    conn.write_coil(output + io_map['outputs']['lamp']['red']['address'], data[0])
+    conn.write_coil(output + io_map['outputs']['lamp']['green']['address'], data[1])
+    conn.write_coil(output + io_map['outputs']['lamp']['yellow']['address'], data[2])
 
-def indicator(conn: ModbusTcpClient | ModbusSerialClient, data: str):
-    if data == "R":
-        conn.write_coil(output + io_map['outputs']['lamp']['red']['address'], 1)
-        conn.write_coil(output + io_map['outputs']['lamp']['green']['address'], 0)
-        conn.write_coil(output + io_map['outputs']['lamp']['yellow']['address'], 0)
-    elif data == "G":
-        conn.write_coil(output + io_map['outputs']['lamp']['red']['address'], 0)
-        conn.write_coil(output + io_map['outputs']['lamp']['green']['address'], 1)
-        conn.write_coil(output + io_map['outputs']['lamp']['yellow']['address'], 0)
-    elif data == "Y":
-        conn.write_coil(output + io_map['outputs']['lamp']['red']['address'], 0)
-        conn.write_coil(output + io_map['outputs']['lamp']['green']['address'], 0)
-        conn.write_coil(output + io_map['outputs']['lamp']['yellow']['address'], 1)
-    else:
-        conn.write_coil(output + io_map['outputs']['lamp']['red']['address'], 0)
-        conn.write_coil(output + io_map['outputs']['lamp']['green']['address'], 0)
-        conn.write_coil(output + io_map['outputs']['lamp']['yellow']['address'], 0)
-
-
-def sound(conn: ModbusTcpClient | ModbusSerialClient, data: int):
-    if data == 1:
-        conn.write_coil(io_map['outputs']['sound']['sound1']['address'], 1)
-        conn.write_coil(io_map['outputs']['sound']['sound2']['address'], 0)
-        conn.write_coil(io_map['outputs']['sound']['sound3']['address'], 0)
-        conn.write_coil(io_map['outputs']['sound']['sound4']['address'], 0)
-    elif data == 2:
-        conn.write_coil(io_map['outputs']['sound']['sound1']['address'], 0)
-        conn.write_coil(io_map['outputs']['sound']['sound2']['address'], 1)
-        conn.write_coil(io_map['outputs']['sound']['sound3']['address'], 0)
-        conn.write_coil(io_map['outputs']['sound']['sound4']['address'], 0)
-    elif data == 3:
-        conn.write_coil(io_map['outputs']['sound']['sound1']['address'], 0)
-        conn.write_coil(io_map['outputs']['sound']['sound2']['address'], 0)
-        conn.write_coil(io_map['outputs']['sound']['sound3']['address'], 1)
-        conn.write_coil(io_map['outputs']['sound']['sound4']['address'], 0)
-    elif data == 4:
-        conn.write_coil(io_map['outputs']['sound']['sound1']['address'], 0)
-        conn.write_coil(io_map['outputs']['sound']['sound2']['address'], 0)
-        conn.write_coil(io_map['outputs']['sound']['sound3']['address'], 0)
-        conn.write_coil(io_map['outputs']['sound']['sound4']['address'], 1)
-    else:
-        conn.write_coil(io_map['outputs']['sound']['sound1']['address'], 0)
-        conn.write_coil(io_map['outputs']['sound']['sound2']['address'], 0)
-        conn.write_coil(io_map['outputs']['sound']['sound3']['address'], 0)
-        conn.write_coil(io_map['outputs']['sound']['sound4']['address'], 0)
+def sound(conn: ModbusTcpClient | ModbusSerialClient, data: list[bool]):
+    conn.write_coil(output + io_map['outputs']['sound']['sound1']['address'], data[0])
+    conn.write_coil(output + io_map['outputs']['sound']['sound2']['address'], data[1])
+    conn.write_coil(output + io_map['outputs']['sound']['sound3']['address'], data[2])
+    conn.write_coil(output + io_map['outputs']['sound']['sound4']['address'], data[3])
 
 
 def route():
-    if get_single_value(slave_map_io['map_io']['node']['button']['add&change']['fc'], slave_map_io['map_io']['node']['button']['add&change']['addr']):
-        data_1 = get_single_value(slave_map_io['map_io']['node']['route']['fc'], slave_map_io['map_io']['node']['route']['addr'])
-        data_2 = get_single_value(slave_map_io['map_io']['node']['rfid']['fc'], slave_map_io['map_io']['node']['rfid']['addr'])
+    if get_single_coil(slave_map_io['map_io']['node']['button']['add&change']['addr']):
+        data_1 = get_single_holding_register(slave_map_io['map_io']['node']['route']['addr'])
+        data_2 = get_single_holding_register(slave_map_io['map_io']['node']['rfid']['addr'])
         if data_1 != 0 and data_2 != 0:
             add_or_update_data(data_1, data_2)
         set_value(slave_map_io['map_io']['node']['button']['add&change']['fc'], slave_map_io['map_io']['node']['button']['add&change']['addr'], [0])
-    elif get_single_value(slave_map_io['map_io']['node']['button']['insert']['fc'], slave_map_io['map_io']['node']['button']['insert']['addr']):
-        data_1 = get_single_value(slave_map_io['map_io']['node']['route']['fc'], slave_map_io['map_io']['node']['route']['addr'])
-        data_2 = get_single_value(slave_map_io['map_io']['node']['pre_rfid']['fc'], slave_map_io['map_io']['node']['pre_rfid']['addr'])
+    elif get_single_coil(slave_map_io['map_io']['node']['button']['insert']['addr']):
+        data_1 = get_single_holding_register(slave_map_io['map_io']['node']['route']['addr'])
+        data_2 = get_single_holding_register(slave_map_io['map_io']['node']['pre_rfid']['addr'])
         if data_1 != 0 and data_2 != 0:
             insert_data(data_1, data_2)
         set_value(slave_map_io['map_io']['node']['button']['insert']['fc'], slave_map_io['map_io']['node']['button']['insert']['addr'], [0])
-    elif get_single_value(slave_map_io['map_io']['node']['button']['delete']['fc'], slave_map_io['map_io']['node']['button']['delete']['addr']):
-        data_1 = get_single_value(slave_map_io['map_io']['node']['route']['fc'], slave_map_io['map_io']['node']['route']['addr'])
-        data_2 = get_single_value(slave_map_io['map_io']['node']['rfid']['fc'], slave_map_io['map_io']['node']['rfid']['addr'])
+    elif get_single_coil(slave_map_io['map_io']['node']['button']['delete']['addr']):
+        data_1 = get_single_holding_register(slave_map_io['map_io']['node']['route']['addr'])
+        data_2 = get_single_holding_register(slave_map_io['map_io']['node']['rfid']['addr'])
         if data_1 != 0 and data_2 != 0:
             delete_data(data_1, data_2)
         set_value(slave_map_io['map_io']['node']['button']['delete']['fc'], slave_map_io['map_io']['node']['button']['delete']['addr'], [0])
-    elif get_single_value(slave_map_io['map_io']['node']['button']['view']['fc'], slave_map_io['map_io']['node']['button']['view']['addr']):
-        data_1 = get_single_value(slave_map_io['map_io']['node']['route']['fc'], slave_map_io['map_io']['node']['route']['addr'])
-        data_2 = get_single_value(slave_map_io['map_io']['node']['rfid']['fc'], slave_map_io['map_io']['node']['rfid']['addr'])
+    elif get_single_coil(slave_map_io['map_io']['node']['button']['view']['addr']):
+        data_1 = get_single_holding_register(slave_map_io['map_io']['node']['route']['addr'])
+        data_2 = get_single_holding_register(slave_map_io['map_io']['node']['rfid']['addr'])
         if data_1 != 0 and data_2 != 0:
             view_data(data_1, data_2)
-    elif get_single_value(slave_map_io['map_io']['node']['button']['query']['fc'], slave_map_io['map_io']['node']['button']['query']['addr']):
-        data_1 = get_single_value(slave_map_io['map_io']['node']['route']['fc'], slave_map_io['map_io']['node']['route']['addr'])
+    elif get_single_coil(slave_map_io['map_io']['node']['button']['query']['addr']):
+        data_1 = get_single_holding_register(slave_map_io['map_io']['node']['route']['addr'])
         if data_1 != 0:
             query_route(data_1)
 

@@ -1,42 +1,26 @@
 import asyncio
-from pymodbus.server.async_io import StartAsyncSerialServer, StartSerialServer
-from pymodbus.datastore import ModbusSequentialDataBlock
-from pymodbus.datastore import ModbusSlaveContext, ModbusServerContext
+from typing import TYPE_CHECKING
 
-import logging
-logging.basicConfig()
-log = logging.getLogger()
-log.setLevel(logging.DEBUG)
+import can
 
-# Buat data block (10 register)
-store = ModbusSlaveContext(
-    di=ModbusSequentialDataBlock(0, [0]*100),  # Discrete Inputs
-    co=ModbusSequentialDataBlock(0, [0]*100),  # Coils
-    hr=ModbusSequentialDataBlock(0, [10,20,30,40,50,60,70,80,90,100]),  # Holding Registers
-    ir=ModbusSequentialDataBlock(0, [0]*100),  # Input Registers
-)
+if TYPE_CHECKING:
+    from can.notifier import MessageRecipient
 
-context = ModbusServerContext(slaves={0x01: store}, single=False)
 
-async def run_server():
-    await StartAsyncSerialServer(
-        context=context,
-        port="/dev/ttyS0",
-        baudrate=57600,
-        parity="N",
-        stopbits=1,
-        bytesize=8,
-        framer=None,  # default RTU
-    )
+def print_message(msg: can.Message) -> None:
+    """Regular callback function. Can also be a coroutine."""
+    print(msg)
+
+
+async def main() -> None:
+    """The main function that runs in the loop."""
+
+    with can.Bus(interface="can0socketcan", channel="can0", receive_own_messages=True) as bus:
+        reader = can.AsyncBufferedReader()
+        logger = can.Logger("logfile.asc")
+    msg = await reader.get_message()
+    print(msg)
+
 
 if __name__ == "__main__":
-    # asyncio.run(run_server())
-    StartSerialServer(
-        context=context,
-        port="/dev/ttyS0",
-        baudrate=57600,
-        parity="N",
-        stopbits=1,
-        bytesize=8,
-        framer=None,  # default RTU
-    )
+    asyncio.run(main())

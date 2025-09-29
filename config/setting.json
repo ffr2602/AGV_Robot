@@ -7,7 +7,7 @@
     "Acceleration": 1000,
     "Default_Music": 0,
     "Speed": 20,
-    "Obstacle": false,
+    "Obstacle": 0,
     "Select_Track": 1,
     "Low_Voltage": 23.4
 }

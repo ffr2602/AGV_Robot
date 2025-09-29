@@ -6,10 +6,11 @@ class CAN_setting():
         self.can_open : bool = False
         try:
             self.bus = can.Bus(interface='socketcan', channel='can0', bitrate=500000)
+            self.bus.send(can.Message(arbitration_id=0x201, data=[0x0f, 0x00, 0x0f, 0x00, 0x03], is_extended_id=False))
             self.can_open = True
         except Exception:
             self.can_open = False
-
+        
         self.sensor : list[int] = [0, 0, 0]
         self.voltage : float = 24.00
         self.temp_driver : float = 0.0
@@ -23,7 +24,6 @@ class CAN_setting():
     def set_kecepatan_motor(self, speed:list[int, int]):
         if self.can_open == True:
             try:
-                self.bus.send(can.Message(arbitration_id=0x201, data=[0x0f, 0x00, 0x0f, 0x00, 0x03], is_extended_id=False))
                 self.bus.send(can.Message(arbitration_id=0x301, data=[int(hex(speed[0] & 0xff), 16),
                                                                     int(hex(speed[0] >> 8 & 0xff), 16),
                                                                     int(hex(speed[0] >> 16 & 0xff), 16),
@@ -35,8 +35,7 @@ class CAN_setting():
                 self.can_open = True
             except Exception:
                 self.can_open = False
-                                                                  
-            
+                                                                       
                 
     def read_data_sensor(self):
         if self.can_open == True:
