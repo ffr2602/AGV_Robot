@@ -198,6 +198,40 @@
             "obstacle": {
                 "addr": 144,
                 "fc": 3
+            },
+            "save": {
+                "addr": 13,
+                "fc": 1
+            },
+            "sensor": {
+                "magnet": {
+                    "left": {
+                        "addr": 10,
+                        "fc": 4
+                    },
+                    "right": {
+                        "addr": 11,
+                        "fc": 4
+                    },
+                    "calibration": {
+                        "addr": 6,
+                        "fc": 3
+                    }
+                },
+                "rfid": {
+                    "calibration": {
+                        "addr": 7,
+                        "fc": 3
+                    },
+                    "actual_rfid": {
+                        "addr": 145,
+                        "fc": 4
+                    },
+                    "set_rfid": {
+                        "addr": 146,
+                        "fc": 1
+                    }
+                }
             }
         },
         "node": {

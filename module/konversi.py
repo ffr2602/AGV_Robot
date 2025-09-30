@@ -1,16 +1,16 @@
 import struct
 
-def int8_to_registers(value:int) -> list[int]:
-    return [value]
+def int8_to_registers(value:int):
+    return value
 
-def uint8_to_registers(value:int) -> list[int]:
-    return [value]
+def uint8_to_registers(value:int):
+    return value
 
-def int16_to_registers(value:int) -> list[int]:
-    return struct.unpack('H', struct.pack('h', value))
+def int16_to_registers(value:int):
+    return struct.unpack('H', struct.pack('h', value))[0]
 
-def uint16_to_registers(value:int) -> list[int]:
-    return [value]
+def uint16_to_registers(value:int):
+    return value
 
 def int32_to_registers(value:int) -> list[int]:
     return list(struct.unpack('<'+'H'*2, struct.pack('<i', value)))

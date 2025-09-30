@@ -136,7 +136,7 @@ def get_uptime():
 
 
 def speed(value: int):
-    speed = value * get_value(3, 1010, 1)[0] * 0.01
+    speed = value * config['Max_Speed'] * 0.01
     return -speed
 
 
@@ -335,18 +335,18 @@ def setting():
     pass
 
 
-def set_RFID():
+def set_RFID(data):
     ser = None
     ser = serial.Serial()
-    ser.port = '/dev/serial/by-path/platform-fd500000.pcie-pci-0000:01:00.0-usb-0:1.3:1.0-port0'
-    ser.baudrate = 9600
+    ser.port = '/dev/serial/by-path/platform-fd500000.pcie-pci-0000:01:00.0-usb-0:1.4:1.0-port0'
+    ser.baudrate = 19200
     ser.timeout = 1000
     ser.open()
 
     if ser.is_open:
         bufSend = [170, 85, 4, 0, 0, 1, 171]
         ser.write(bufSend)
-        SetID = int(get_value(3, 221, 1)[0])
+        SetID = int(data)
         parset = [1, 2, 3, 4, 5, 6, 7, 8, 172]
         parset[4] = SetID >> 56 & 255
         parset[5] = SetID >> 48 & 255
