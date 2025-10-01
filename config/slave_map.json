@@ -1,0 +1,137 @@
+{
+    "modbus": {
+        "RTU": {
+            "port": "/dev/ttyS0",
+            "baudrate": 57600,
+            "parity": "N",
+            "stopbits": 1,
+            "bytesize": 8,
+            "framer": 0
+        },
+        "TCP": {
+            "address": "0.0.0.0",
+            "port": 5000
+        }
+    },
+    "map_io": {
+        "status": {
+            "voltage": 18,
+            "battery_indicator": 20,
+            "temp": {
+                "CPU": 0,
+                "Driver": 2
+            },
+            "motor": {
+                "fault": {
+                    "m1": 4,
+                    "m2": 5
+                },
+                "current": {
+                    "m1": 6,
+                    "m2": 8
+                }
+            },
+            "comm": {
+                "TCP": 9,
+                "CAN": 10,
+                "bumper": 11
+            }
+        },
+        "dashboard": {
+            "route": 147,
+            "speed": 148,
+            "rfid": 17,
+            "stick": 17,
+            "control": {
+                "start": 8,
+                "stop": 9,
+                "reset": 10,
+                "wheel": 11,
+                "hook": 12,
+                "set_default_speed": 14,
+                "state": {
+                    "wheel_up": 13,
+                    "wheel_down": 14,
+                    "hook_up": 15,
+                    "hook_down": 16
+                }
+            },
+            "state": {
+                "forward": 0,
+                "in_progress": 1,
+                "running": 2,
+                "out_of_track": 3
+            },
+            "alarm": {
+                "slow_area": 4,
+                "stop_area": 5,
+                "estop_area": 6,
+                "alarm_fault": 7,
+                "estop_indicator": 8
+            },
+            "clock": {
+                "hour": 14,
+                "minute": 15,
+                "second": 16
+            }
+        },
+        "setting": {
+            "idcar": 140,
+            "accel": 141,
+            "music": 142,
+            "track": 143,
+            "obstacle": 144,
+            "save": 13,
+            "sensor": {
+                "magnet": {
+                    "left": 10,
+                    "right": 11,
+                    "calibration": 6
+                },
+                "rfid": {
+                    "calibration": 7,
+                    "actual_rfid": 145,
+                    "set_rfid": 146
+                }
+            }
+        },
+        "node": {
+            "route": 137,
+            "pre_rfid": 138,
+            "rfid": 139,
+            "view_route": {
+                "start": 1,
+                "end": 100
+            },
+            "motion": {
+                "1": {
+                    "name": 101,
+                    "parameter": 132
+                },
+                "2": {
+                    "name": 107,
+                    "parameter": 133
+                },
+                "3": {
+                    "name": 113,
+                    "parameter": 134
+                },
+                "4": {
+                    "name": 119,
+                    "parameter": 135
+                },
+                "5": {
+                    "name": 125,
+                    "parameter": 136
+                }
+            },
+            "button": {
+                "add&change": 1,
+                "insert": 2,
+                "delete": 3,
+                "view": 4,
+                "query": 5
+            }
+        }
+    }
+}

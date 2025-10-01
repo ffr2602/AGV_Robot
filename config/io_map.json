@@ -1,0 +1,50 @@
+{
+    "modbus": {
+        "RTU": {
+            "port": "COM6",
+            "baudrate": 57600,
+            "parity": "N",
+            "stopbits": 1,
+            "bytesize": 8
+        },
+        "TCP": {
+            "host": "192.168.1.111",
+            "port": 502
+        }
+    },
+    "inputs": {
+        "start": 0,
+        "stop": 1,
+        "reset": 2,
+        "emergency_stop": 4,
+        "bumper": 6,
+        "obstacle_sensor": {
+            "warning": 5,
+            "stop": 11
+        },
+        "wheel": {
+            "button": 3,
+            "wheel_up": 10,
+            "wheel_down": 9
+        },
+        "hook": {
+            "hook_up": 7,
+            "hook_down": 8
+        }
+    },
+    "outputs": {
+        "wheel": 15,
+        "hook": 14,
+        "lamp": {
+            "red": 100,
+            "green": 101,
+            "yellow": 102
+        },
+        "sound": {
+            "sound1": 103,
+            "sound2": 104,
+            "sound3": 105,
+            "sound4": 106
+        }
+    }
+}
