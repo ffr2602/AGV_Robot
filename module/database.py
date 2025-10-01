@@ -107,7 +107,6 @@ def get_cpu_temperature():
         temperature = int(temp_str) / 1000.0
     return temperature
 
-
 def get_uptime():
     with open("/proc/uptime", "r") as f:
         uptime_seconds = int(float(f.readline().split()[0]))
@@ -116,11 +115,9 @@ def get_uptime():
     seconds = uptime_seconds % 60
     return [hours, minutes, seconds]
 
-
 def speed(value: int):
     speed = value * config['Max_Speed'] * 0.01
     return -speed
-
 
 def save_config():
     config['ID_CAR'] = get_single_holding_register(slave_map_io['map_io']['setting']['idcar'])
@@ -131,12 +128,8 @@ def save_config():
     with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '../config/setting.json')), "w") as json_file:
         json.dump(config, json_file, indent=4)
 
-
 # ============================================================
-# ============================================================
-# ============================================================
-
-
+# ============================== Modbus Function ==============================
 # ============================== Coils ==============================
 
 def get_single_coil(addr):
@@ -193,14 +186,9 @@ def set_single_holding_register(addr, value: int):
 def set_multiple_holding_registers(addr, value: list[int]):
     context[slave].setValues(3, addr, value)
 
-
-# ============================================================
-# ============================================================
-# ============================================================
-
-
+# ============================================================ 
+# ============================ I/O Mapping ================================
 # ============================ inputs ============================
-
 
 def emergency_stop(conn: ModbusTcpClient | ModbusSerialClient):
     data = conn.read_coils(input + io_map['inputs']['emergency_stop'])
@@ -250,7 +238,6 @@ def bumper(conn: ModbusTcpClient | ModbusSerialClient):
     data = conn.read_coils(input + io_map['inputs']['bumper'])
     return data.bits[0]
 
-
 # ============================ outputs ============================
 
 def wheel_c(conn: ModbusTcpClient | ModbusSerialClient, data: bool):
@@ -270,6 +257,7 @@ def sound(conn: ModbusTcpClient | ModbusSerialClient, data: list[bool]):
     conn.write_coil(output + io_map['outputs']['sound']['sound3'], data[2])
     conn.write_coil(output + io_map['outputs']['sound']['sound4'], data[3])
 
+# ============================ node ============================
 
 def route():
     if get_single_coil(slave_map_io['map_io']['node']['button']['add&change']):
@@ -300,7 +288,6 @@ def route():
         if data_1 != 0:
             query_route(data_1)
 
-
 def status(data:list, com: bool = True):
     set_multiple_input_registers(slave_map_io['map_io']['status']['temp']['CPU'], float32_to_registers(data[0]))
     if com == True:
@@ -320,7 +307,6 @@ def status(data:list, com: bool = True):
     set_single_discrete_input(slave_map_io['map_io']['status']['comm']['TCP'], data[6])
     set_single_discrete_input(slave_map_io['map_io']['status']['comm']['CAN'], data[7])
     set_single_discrete_input(slave_map_io['map_io']['status']['comm']['bumper'], data[8])
-
 
 def set_RFID(data):
     ser = None
