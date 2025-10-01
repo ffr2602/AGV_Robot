@@ -23,8 +23,8 @@ class robot():
     cmd_com = [False, False, False, False]
     # ======== TCP | CAN ========
     cc___er = [True, True]
-    # ======== E-Stop | Obstacle Warn | Obstacle Stop | Bumper ========
-    ssa__in = [True, True, True, False]
+    # ======== E-Stop Button | Obstacle Warn | Obstacle Stop | Bumper | E-STOP Command ========
+    ssa__in = [True, True, True, False, False]
     # ======== Red | Green | Yellow ========
     lmp_out = [False, False, False]
     # ======== S1 | S2 | S3 | S4 ========
@@ -92,8 +92,11 @@ class robot():
                             elif data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][0] == 'stop':
                                 self.interval = data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][1]
                                 self.cmd_com[1] = False
-                            # ============= MUSIC =============
-                            elif data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][0] == 'music':
+                            # ============= E-STOP =============
+                            elif data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][0] == 'e-stop':
+                                self.ssa__in[4] = True
+                            # ============= SOUND =============
+                            elif data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][0] == 'sound':
                                 self.tmp_com[0] = data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][1]
                             # ============= STICK =============
                             elif data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][0] == 'stick':
@@ -103,14 +106,14 @@ class robot():
                                 set_single_holding_register(slave_map_io['map_io']['dashboard']['speed'], data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][1])
                                 self.cmd_com[2] = False
                             # ============= OBSTACLE =============
-                            elif data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][0] == 'obs set':
+                            elif data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][0] == 'obs-set':
                                 set_single_holding_register(slave_map_io['map_io']['setting']['obstacle'], data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][1])
                             # ============= ROUTE TRANS =============
-                            elif data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][0] == 'route trans':
+                            elif data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][0] == 'route-trans':
                                 set_single_holding_register(slave_map_io['map_io']['dashboard']['route'], data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][1])
                                 break
                             # ============= TURN =============
-                            elif data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][0] == 'turn':
+                            elif data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][0] == 'track':
                                 set_single_holding_register(slave_map_io['map_io']['setting']['track'], data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][1])
                             # ============= DELAY =============
                             elif data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][0] == 'delay':
@@ -166,6 +169,7 @@ class robot():
                     elif reset(conn) == 1 or get_single_coil(slave_map_io['map_io']['dashboard']['control']['reset']) == 1:
                         self.cmd_com[3] = False
                         self.cmd_com[1] = False
+                        self.ssa__in[4] = False
                         self.canbus.data_RFID = 0
                     # ======================================
                     # =======================================================
@@ -245,7 +249,7 @@ class robot():
                 self.canbus.set_kecepatan_motor([0, 0])
                 self.lmp_out = [1, 0, 0]
             else:
-                if not self.ssa__in[0]:
+                if not self.ssa__in[0] or self.ssa__in[4]:
                     self.commnad = False
                     self.canbus.set_kecepatan_motor([0, 0])
                     self.lmp_out = [1, 0, 0]

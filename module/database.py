@@ -53,7 +53,7 @@ def add_or_update_data(route_id, node_id):
         for item in range(len(slave_map_io['map_io']['node']['motion'])):
             new_data[f"motion_{f'{item+1}'}"] = [
                 registers_to_string(get_multiple_holding_registers(slave_map_io['map_io']['node']['motion'][f'{item+1}']['name'], 6)), 
-                get_multiple_holding_registers(slave_map_io['map_io']['node']['motion'][f'{item+1}']['parameter'])
+                get_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{item+1}']['parameter'])
             ]
         with open(file_path, "r") as json_file:
             data = json.load(json_file)
