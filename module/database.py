@@ -117,7 +117,7 @@ def get_uptime():
 
 def speed(value: int):
     speed = value * config['Max_Speed'] * 0.01
-    return -speed
+    return speed
 
 def save_config():
     config['ID_CAR'] = get_single_holding_register(slave_map_io['map_io']['setting']['idcar'])
