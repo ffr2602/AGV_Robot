@@ -191,7 +191,7 @@ class robot():
             # ======================================
             # ================= ALARM FAULT ======================================
             # =======================================================
-            self.batt[0] = self.canbus.voltage - 0.22
+            self.batt[0] = self.canbus.voltage
             self.cc___er[1] = self.canbus.can_open
             if not self.cc___er[1]:
                 self.batt[0] = 0.0
@@ -361,7 +361,7 @@ class robot():
                 self.cc___er[0], 
                 self.canbus.can_open, 
                 self.cmd_com[2],
-                self.canbus.voltage - 0.22
+                self.canbus.voltage
             ]
             status(data, com=self.cc___er[1])
             update_log("./log/main_robot.txt", int(time.time() * 1000 - self.loop_time[0]))
