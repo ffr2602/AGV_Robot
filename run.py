@@ -55,7 +55,7 @@ class robot():
         self.pid_slow = PID(9.00, 0.00, 0.00)
         self.canbus = CAN_setting()
     
-    def update_speed_slow(self, target_speed):
+    def update_speed(self, target_speed):
         new_speed = [0, 0]
         for i in range(2):
             if self.ss__spd[i] < target_speed[i]:
@@ -168,8 +168,8 @@ class robot():
                     elif stop(conn) == 1 or get_single_coil(slave_map_io['map_io']['dashboard']['control']['stop']) == 1:
                         self.cmd_com[1] = False
                     elif reset(conn) == 1 or get_single_coil(slave_map_io['map_io']['dashboard']['control']['reset']) == 1:
-                        self.cmd_com[2] = False
                         self.cmd_com[1] = False
+                        self.cmd_com[2] = False
                         self.ssa__in[4] = False
                         self.ss__spd = [0, 0]
                         self.vv__spd = [0, 0]
@@ -253,11 +253,15 @@ class robot():
             if self.cmd_com[0]:
                 self.cmd_com[1] = False
                 self.canbus.set_kecepatan_motor([0, 0])
+                self.ss__spd = [0, 0]
+                self.vv__spd = [0, 0]
                 self.lmp_out = [1, 0, 0]
             else:
                 if not self.ssa__in[0] or self.ssa__in[4]:
                     self.commnad = False
                     self.canbus.set_kecepatan_motor([0, 0])
+                    self.ss__spd = [0, 0]
+                    self.vv__spd = [0, 0]
                     self.lmp_out = [1, 0, 0]
                 else:
                     self.select_track(get_single_holding_register(slave_map_io['map_io']['setting']['track']))
@@ -281,6 +285,9 @@ class robot():
                             if get_single_holding_register(slave_map_io['map_io']['setting']['obstacle']):
                                 if self.ssa__in[2]:
                                     if not self.ssa__in[1]:
+                                        # ============================================================================
+                                        # ====================================== SLOW AREA ======================================
+                                        # ============================================================================
                                         if not get_single_holding_register(slave_map_io['map_io']['setting']['music']):
                                             self.snd_out = [0, 0, 0, 0]
                                         else:
@@ -288,11 +295,13 @@ class robot():
                                         self.lmp_out = [0, 0, 1]
                                         set_multiple_discrete_inputs(slave_map_io['map_io']['dashboard']['alarm']['slow_area'], [1, 0, 0, 0])
                                         target_speed = [int(speed(20)), int(speed(20))]
-                                        self.canbus.set_kecepatan_motor([int(-self.update_speed_slow(target_speed)[0] + self.pid.compute(self.error)), int(self.update_speed_slow(target_speed)[1] + self.pid.compute(self.error))])
+                                        self.canbus.set_kecepatan_motor([int(-self.update_speed(target_speed)[0] + self.pid.compute(self.error)), int(self.update_speed(target_speed)[1] + self.pid.compute(self.error))])
                                         if self.ss__spd == target_speed:
                                             self.vv__spd = self.ss__spd
                                     else:
+                                        # ============================================================================
                                         # ====================================== NORMAL WITH OBSTACLE ======================================
+                                        # ============================================================================
                                         if not get_single_holding_register(slave_map_io['map_io']['setting']['music']):
                                             self.snd_out = [0, 0, 0, 0]
                                         else:
@@ -300,10 +309,13 @@ class robot():
                                         self.lmp_out = [0, 1, 0]
                                         set_multiple_discrete_inputs(slave_map_io['map_io']['dashboard']['alarm']['slow_area'], [0, 0, 0, 0])
                                         target_speed = [int(speed(get_single_holding_register(slave_map_io['map_io']['dashboard']['speed']))), int(speed(get_single_holding_register(slave_map_io['map_io']['dashboard']['speed'])))]
-                                        self.canbus.set_kecepatan_motor([int(-self.update_speed_slow(target_speed)[0] + self.pid.compute(self.error)), int(self.update_speed_slow(target_speed)[1] + self.pid.compute(self.error))])
+                                        self.canbus.set_kecepatan_motor([int(-self.update_speed(target_speed)[0] + self.pid.compute(self.error)), int(self.update_speed(target_speed)[1] + self.pid.compute(self.error))])
                                         if self.ss__spd == target_speed:
                                             self.vv__spd = self.ss__spd
                                 else:
+                                    # ============================================================================
+                                    # ====================================== STOP AREA ======================================
+                                    # ============================================================================
                                     if not get_single_holding_register(slave_map_io['map_io']['setting']['music']):
                                         self.snd_out = [0, 0, 0, 0]
                                     else:
@@ -314,7 +326,9 @@ class robot():
                                     self.ss__spd = [0, 0]
                                     self.vv__spd = [0, 0]
                             else:
+                                # ============================================================================
                                 # ====================================== NORMAL WITHOUT OBSTACLE ======================================
+                                # ============================================================================
                                 if not get_single_holding_register(slave_map_io['map_io']['setting']['music']):
                                     self.snd_out = [0, 0, 0, 0]
                                 else:
@@ -322,17 +336,19 @@ class robot():
                                 self.lmp_out = [0, 1, 0]
                                 set_multiple_discrete_inputs(slave_map_io['map_io']['dashboard']['alarm']['slow_area'], [0, 0, 0, 0])
                                 target_speed = [int(speed(get_single_holding_register(slave_map_io['map_io']['dashboard']['speed']))), int(speed(get_single_holding_register(slave_map_io['map_io']['dashboard']['speed'])))]
-                                self.canbus.set_kecepatan_motor([int(-self.update_speed_slow(target_speed)[0] + self.pid.compute(self.error)), int(self.update_speed_slow(target_speed)[1] + self.pid.compute(self.error))])
+                                self.canbus.set_kecepatan_motor([int(-self.update_speed(target_speed)[0] + self.pid.compute(self.error)), int(self.update_speed(target_speed)[1] + self.pid.compute(self.error))])
                                 if self.ss__spd == target_speed:
                                     self.vv__spd = self.ss__spd 
                     else:
+                        # ==============================================================================
                         # ====================================== STOP ======================================
+                        # ==============================================================================
                         self.snd_out = [0, 0, 0, 0]
                         self.lmp_out = [0, 0, 0]
                         set_multiple_discrete_inputs(slave_map_io['map_io']['dashboard']['alarm']['slow_area'], [0, 0, 0, 0])
                         set_single_discrete_input(slave_map_io['map_io']['dashboard']['state']['forward'], 0)
                         target_speed = [0, 0]
-                        self.canbus.set_kecepatan_motor([int(-self.update_speed_slow(target_speed)[0] + self.pid.compute(self.error)), int(self.update_speed_slow(target_speed)[1] + self.pid.compute(self.error))])
+                        self.canbus.set_kecepatan_motor([int(-self.update_speed(target_speed)[0] + self.pid.compute(self.error)), int(self.update_speed(target_speed)[1] + self.pid.compute(self.error))])
                         if self.ss__spd == target_speed:
                             self.vv__spd = self.ss__spd
             data = [
