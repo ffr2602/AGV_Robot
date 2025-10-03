@@ -20,7 +20,10 @@ class robot():
     # ================================== Parameter ==================================
     # ==============================================================================
     error = 0
+    tmp_RFID = 0
     previous_time = 0
+    # ================ Default Music | Default Track | Default Obstacle | Default Acceleration =================
+    tt_task = [0, 0, 0, 0]
     # ================ Time Loop Main | Time Loop I/O | Time Loop Task =================
     loop_time = [0, 0, 0]
     # ======== Voltage | Time ========
@@ -28,8 +31,6 @@ class robot():
     # ======== Speed Left | Speed Right ========
     vv__spd = [0, 0]
     ss__spd = [0, 0]
-    # ======== Music | RFID | Speed ========
-    tmp_com = [0, 0, 0]
     # ======== Alarm | Command | Bumper ========
     cmd_com = [False, False, False]
     # ======== TCP | CAN ========
@@ -50,20 +51,30 @@ class robot():
         set_single_holding_register(slave_map_io['map_io']['setting']['music'], config['Default_Music'])
         set_single_holding_register(slave_map_io['map_io']['setting']['track'], config['Select_Track'])
         set_single_holding_register(slave_map_io['map_io']['setting']['obstacle'], config['Obstacle'])
-        self.interval = config['Acceleration']
+        self.tt_task[0] = config['Default_Music']
+        self.tt_task[1] = config['Select_Track']
+        self.tt_task[2] = config['Obstacle']
+        self.tt_task[3] = config['Acceleration']
         self.pid = PID(config['P'], config['I'], config['D'])
         self.pid_slow = PID(9.00, 0.00, 0.00)
         self.canbus = CAN_setting()
     
-    def update_speed(self, target_speed):
+    def update_speed(self, target_speed, tolerance=2):
         new_speed = [0, 0]
+        now = int(time.time() * 1000)
+        delta_t = now - self.previous_time
+        self.previous_time = now 
         for i in range(2):
+            step = (abs(target_speed[i] - self.vv__spd[i]) / self.tt_task[3]) * delta_t
             if self.ss__spd[i] < target_speed[i]:
-                new_speed[i] = min(self.ss__spd[i] + (abs(target_speed[i] - self.vv__spd[i]) / self.interval) * (int(time.time() * 1000 - self.previous_time)), target_speed[i])
+                new_speed[i] = min(self.ss__spd[i] + step, target_speed[i])
             elif self.ss__spd[i] > target_speed[i]:
-                new_speed[i] = max(self.ss__spd[i] - (abs(target_speed[i] - self.vv__spd[i]) / self.interval) * (int(time.time() * 1000 - self.previous_time)), target_speed[i])
+                new_speed[i] = max(self.ss__spd[i] - step, target_speed[i])
             else:
                 new_speed[i] = self.ss__spd[i]
+            if abs(new_speed[i] - target_speed[i]) <= tolerance:
+                new_speed[i] = target_speed[i]
+                self.vv__spd[i] = target_speed[i] 
         self.ss__spd = new_speed
         return new_speed
 
@@ -78,8 +89,9 @@ class robot():
     def motion_task_robot(self):
         while True:
             self.loop_time[2] = time.time() * 1000
-            if self.canbus.data_RFID != self.tmp_com[1]:
-                self.tmp_com[1] = self.canbus.data_RFID
+            # ======================================
+            if self.canbus.data_RFID != self.tmp_RFID:
+                self.tmp_RFID = self.canbus.data_RFID
                 with open(file_path, "r") as node:
                     data_node = json.load(node)
                 if str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route'])) in data_node:
@@ -88,18 +100,18 @@ class robot():
                             set_single_discrete_input(slave_map_io['map_io']['dashboard']['state']['in_progress'], True)
                             # ============= FORWARD =============
                             if data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][0] == 'forward':
-                                self.interval = data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][1]
+                                self.tt_task[3] = data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][1]
                                 self.cmd_com[1] = True
                             # ============= STOP =============
                             elif data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][0] == 'stop':
-                                self.interval = data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][1]
+                                self.tt_task[3] = data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][1]
                                 self.cmd_com[1] = False
                             # ============= E-STOP =============
                             elif data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][0] == 'e-stop':
                                 self.ssa__in[4] = True
                             # ============= SOUND =============
                             elif data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][0] == 'sound':
-                                self.tmp_com[0] = data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][1]
+                                self.tt_task[0] = data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][1]
                             # ============= STICK =============
                             elif data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][0] == 'stick':
                                 set_single_coil(slave_map_io['map_io']['dashboard']['stick'], data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][1])
@@ -108,14 +120,14 @@ class robot():
                                 set_single_holding_register(slave_map_io['map_io']['dashboard']['speed'], data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][1])
                             # ============= OBSTACLE =============
                             elif data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][0] == 'obs-set':
-                                set_single_holding_register(slave_map_io['map_io']['setting']['obstacle'], data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][1])
+                                self.tt_task[1] = data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][1]
                             # ============= ROUTE TRANS =============
                             elif data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][0] == 'route-trans':
                                 set_single_holding_register(slave_map_io['map_io']['dashboard']['route'], data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][1])
                                 break
-                            # ============= TURN =============
+                            # ============= TRACK =============
                             elif data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][0] == 'track':
-                                set_single_holding_register(slave_map_io['map_io']['setting']['track'], data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][1])
+                                self.tt_task[1] = data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][1]
                             # ============= DELAY =============
                             elif data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][0] == 'delay':
                                 time.sleep(data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][1])
@@ -127,6 +139,7 @@ class robot():
         conn = ModbusTcpClient(host=io_map['modbus']['TCP']['host'], port=io_map['modbus']['TCP']['port'], timeout=1)
         while True:
             self.loop_time[1] = time.time() * 1000
+            # ======================================
             self.cc___er[0] = conn.connected
             try:
                 if conn.connected:
@@ -183,9 +196,7 @@ class robot():
     
     def main_robot(self):
         while True:
-            print(self.ss__spd)
             self.loop_time[0] = time.time() * 1000
-            self.previous_time = time.time() * 1000
             # ======================================
             route()
             self.canbus.read_data_sensor()
@@ -246,6 +257,10 @@ class robot():
             # ================= CONFIGURATION ======================================
             # =======================================================
             if get_single_coil(slave_map_io['map_io']['setting']['save']):
+                self.tt_task[0] = get_single_holding_register(slave_map_io['map_io']['setting']['music'])
+                self.tt_task[1] = get_single_holding_register(slave_map_io['map_io']['setting']['track'])
+                self.tt_task[2] = get_single_holding_register(slave_map_io['map_io']['setting']['obstacle'])
+                self.tt_task[3] = get_single_holding_register(slave_map_io['map_io']['setting']['accel'])
                 save_config()
                 set_single_coil(slave_map_io['map_io']['setting']['save'], False)
             # ======================================
@@ -265,7 +280,7 @@ class robot():
                     self.vv__spd = [0, 0]
                     self.lmp_out = [1, 0, 0]
                 else:
-                    self.select_track(get_single_holding_register(slave_map_io['map_io']['setting']['track']))
+                    self.select_track(self.tt_task[1])
                     if self.cmd_com[1]:
                         # ======================================
                         # ================= BUMPER & MAGNET DETECT TRACK ======================================
@@ -276,20 +291,20 @@ class robot():
                             self.canbus.set_kecepatan_motor([0, 0])
                             self.ss__spd = [0, 0]
                             self.vv__spd = [0, 0]
-                            if not get_single_holding_register(slave_map_io['map_io']['setting']['music']):
+                            if not self.tt_task[0]:
                                 self.snd_out = [0, 0, 0, 0]
                             else:
-                                self.snd_out = [1, 0, 0, 0]
+                                self.snd_out = [0, 1, 0, 0]
                             self.lmp_out = [1, 0, 0]
                         else:
                             set_single_discrete_input(slave_map_io['map_io']['dashboard']['state']['forward'], True)
-                            if get_single_holding_register(slave_map_io['map_io']['setting']['obstacle']):
+                            if self.tt_task[2]:
                                 if self.ssa__in[2]:
                                     if not self.ssa__in[1]:
                                         # ============================================================================
                                         # ====================================== SLOW AREA ======================================
                                         # ============================================================================
-                                        if not get_single_holding_register(slave_map_io['map_io']['setting']['music']):
+                                        if not self.tt_task[0]:
                                             self.snd_out = [0, 0, 0, 0]
                                         else:
                                             self.snd_out = [1, 0, 0, 0]
@@ -297,13 +312,12 @@ class robot():
                                         set_multiple_discrete_inputs(slave_map_io['map_io']['dashboard']['alarm']['slow_area'], [1, 0, 0, 0])
                                         target_speed = [int(speed(20)), int(speed(20))]
                                         self.canbus.set_kecepatan_motor([int(-self.update_speed(target_speed)[0] + self.pid.compute(self.error)), int(self.update_speed(target_speed)[1] + self.pid.compute(self.error))])
-                                        if self.ss__spd <= target_speed:
-                                            self.vv__spd = self.ss__spd
+                                        self.vv__spd = self.ss__spd
                                     else:
                                         # ============================================================================
                                         # ====================================== NORMAL WITH OBSTACLE ======================================
                                         # ============================================================================
-                                        if not get_single_holding_register(slave_map_io['map_io']['setting']['music']):
+                                        if not self.tt_task[0]:
                                             self.snd_out = [0, 0, 0, 0]
                                         else:
                                             self.snd_out = [0, 0, 0, 1]
@@ -311,13 +325,12 @@ class robot():
                                         set_multiple_discrete_inputs(slave_map_io['map_io']['dashboard']['alarm']['slow_area'], [0, 0, 0, 0])
                                         target_speed = [int(speed(get_single_holding_register(slave_map_io['map_io']['dashboard']['speed']))), int(speed(get_single_holding_register(slave_map_io['map_io']['dashboard']['speed'])))]
                                         self.canbus.set_kecepatan_motor([int(-self.update_speed(target_speed)[0] + self.pid.compute(self.error)), int(self.update_speed(target_speed)[1] + self.pid.compute(self.error))])
-                                        if self.ss__spd <= target_speed:
-                                            self.vv__spd = self.ss__spd
+                                        self.vv__spd = self.ss__spd
                                 else:
                                     # ============================================================================
                                     # ====================================== STOP AREA ======================================
                                     # ============================================================================
-                                    if not get_single_holding_register(slave_map_io['map_io']['setting']['music']):
+                                    if not self.tt_task[0]:
                                         self.snd_out = [0, 0, 0, 0]
                                     else:
                                         self.snd_out = [0, 1, 0, 0]
@@ -330,7 +343,7 @@ class robot():
                                 # ============================================================================
                                 # ====================================== NORMAL WITHOUT OBSTACLE ======================================
                                 # ============================================================================
-                                if not get_single_holding_register(slave_map_io['map_io']['setting']['music']):
+                                if not self.tt_task[0]:
                                     self.snd_out = [0, 0, 0, 0]
                                 else:
                                     self.snd_out = [0, 0, 0, 1]
@@ -338,8 +351,7 @@ class robot():
                                 set_multiple_discrete_inputs(slave_map_io['map_io']['dashboard']['alarm']['slow_area'], [0, 0, 0, 0])
                                 target_speed = [int(speed(get_single_holding_register(slave_map_io['map_io']['dashboard']['speed']))), int(speed(get_single_holding_register(slave_map_io['map_io']['dashboard']['speed'])))]
                                 self.canbus.set_kecepatan_motor([int(-self.update_speed(target_speed)[0] + self.pid.compute(self.error)), int(self.update_speed(target_speed)[1] + self.pid.compute(self.error))])
-                                if self.ss__spd <= target_speed:
-                                    self.vv__spd = self.ss__spd 
+                                self.vv__spd = self.ss__spd
                     else:
                         # ==============================================================================
                         # ====================================== STOP ======================================
@@ -350,8 +362,7 @@ class robot():
                         set_single_discrete_input(slave_map_io['map_io']['dashboard']['state']['forward'], 0)
                         target_speed = [0, 0]
                         self.canbus.set_kecepatan_motor([int(-self.update_speed(target_speed)[0] + self.pid.compute(self.error)), int(self.update_speed(target_speed)[1] + self.pid.compute(self.error))])
-                        if self.ss__spd <= target_speed:
-                            self.vv__spd = self.ss__spd
+                        self.vv__spd = self.ss__spd
             data = [
                 get_cpu_temperature(), 
                 self.canbus.temp_driver, 
