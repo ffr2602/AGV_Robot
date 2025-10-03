@@ -130,7 +130,7 @@ class robot():
                                 self.tt_task[1] = data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][1]
                             # ============= DELAY =============
                             elif data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][0] == 'delay':
-                                time.sleep(data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][1])
+                                time.sleep(data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][1] * 0.001)
                         set_single_discrete_input(slave_map_io['map_io']['dashboard']['state']['in_progress'], False)
             time.sleep(0.001)
             update_log("./log/task_robot.txt", int(time.time() * 1000 - self.loop_time[2]))
