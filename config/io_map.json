@@ -33,18 +33,18 @@
         }
     },
     "outputs": {
-        "wheel": 15,
-        "hook": 14,
+        "wheel": 10,
+        "hook": 11,
         "lamp": {
-            "red": 100,
-            "green": 101,
-            "yellow": 102
+            "red": 0,
+            "green": 1,
+            "yellow": 2
         },
         "sound": {
-            "sound1": 103,
-            "sound2": 104,
-            "sound3": 105,
-            "sound4": 106
+            "sound1": 3,
+            "sound2": 4,
+            "sound3": 5,
+            "sound4": 6
         }
     }
 }

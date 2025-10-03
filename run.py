@@ -183,6 +183,7 @@ class robot():
     
     def main_robot(self):
         while True:
+            print(self.ss__spd)
             self.loop_time[0] = time.time() * 1000
             self.previous_time = time.time() * 1000
             # ======================================
@@ -296,7 +297,7 @@ class robot():
                                         set_multiple_discrete_inputs(slave_map_io['map_io']['dashboard']['alarm']['slow_area'], [1, 0, 0, 0])
                                         target_speed = [int(speed(20)), int(speed(20))]
                                         self.canbus.set_kecepatan_motor([int(-self.update_speed(target_speed)[0] + self.pid.compute(self.error)), int(self.update_speed(target_speed)[1] + self.pid.compute(self.error))])
-                                        if self.ss__spd == target_speed:
+                                        if self.ss__spd <= target_speed:
                                             self.vv__spd = self.ss__spd
                                     else:
                                         # ============================================================================
@@ -310,7 +311,7 @@ class robot():
                                         set_multiple_discrete_inputs(slave_map_io['map_io']['dashboard']['alarm']['slow_area'], [0, 0, 0, 0])
                                         target_speed = [int(speed(get_single_holding_register(slave_map_io['map_io']['dashboard']['speed']))), int(speed(get_single_holding_register(slave_map_io['map_io']['dashboard']['speed'])))]
                                         self.canbus.set_kecepatan_motor([int(-self.update_speed(target_speed)[0] + self.pid.compute(self.error)), int(self.update_speed(target_speed)[1] + self.pid.compute(self.error))])
-                                        if self.ss__spd == target_speed:
+                                        if self.ss__spd <= target_speed:
                                             self.vv__spd = self.ss__spd
                                 else:
                                     # ============================================================================
@@ -337,7 +338,7 @@ class robot():
                                 set_multiple_discrete_inputs(slave_map_io['map_io']['dashboard']['alarm']['slow_area'], [0, 0, 0, 0])
                                 target_speed = [int(speed(get_single_holding_register(slave_map_io['map_io']['dashboard']['speed']))), int(speed(get_single_holding_register(slave_map_io['map_io']['dashboard']['speed'])))]
                                 self.canbus.set_kecepatan_motor([int(-self.update_speed(target_speed)[0] + self.pid.compute(self.error)), int(self.update_speed(target_speed)[1] + self.pid.compute(self.error))])
-                                if self.ss__spd == target_speed:
+                                if self.ss__spd <= target_speed:
                                     self.vv__spd = self.ss__spd 
                     else:
                         # ==============================================================================
@@ -349,7 +350,7 @@ class robot():
                         set_single_discrete_input(slave_map_io['map_io']['dashboard']['state']['forward'], 0)
                         target_speed = [0, 0]
                         self.canbus.set_kecepatan_motor([int(-self.update_speed(target_speed)[0] + self.pid.compute(self.error)), int(self.update_speed(target_speed)[1] + self.pid.compute(self.error))])
-                        if self.ss__spd == target_speed:
+                        if self.ss__spd <= target_speed:
                             self.vv__spd = self.ss__spd
             data = [
                 get_cpu_temperature(), 

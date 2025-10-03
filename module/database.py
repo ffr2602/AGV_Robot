@@ -9,8 +9,9 @@ from module.konversi import *
 from module.can_bus import *
 
 slave = 1
-input = 0x0C00
-output = 0x0C00
+input = 0x0000
+output = 0x0600
+auxiliary = 0x0C00
 
 store = ModbusSlaveContext(
     di=ModbusSequentialDataBlock(0, [0] * 10000),
@@ -241,10 +242,10 @@ def bumper(conn: ModbusTcpClient | ModbusSerialClient):
 # ============================ outputs ============================
 
 def wheel_c(conn: ModbusTcpClient | ModbusSerialClient, data: bool):
-    conn.write_coil(output + io_map['outputs']['wheel'], data)
+    conn.write_coil(auxiliary + io_map['outputs']['wheel'], data)
 
 def hook_c(conn: ModbusTcpClient | ModbusSerialClient, data: bool):
-    conn.write_coil(output + io_map['outputs']['hook'], data)
+    conn.write_coil(auxiliary + io_map['outputs']['hook'], data)
 
 def indicator(conn: ModbusTcpClient | ModbusSerialClient, data: list[bool]):
     conn.write_coil(output + io_map['outputs']['lamp']['red'], data[0])
