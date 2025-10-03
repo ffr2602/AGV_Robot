@@ -67,20 +67,22 @@ def add_or_update_data(route_id, node_id):
 def view_data(route_id, node_id):
     with open(file_path, "r") as json_file:
         data = json.load(json_file)
+    for item in range(len(slave_map_io['map_io']['node']['motion'])):
+        set_multiple_holding_registers(slave_map_io['map_io']['node']['motion'][f'{item+1}']['name'], list(string_to_registers("", 12)))
+        set_multiple_holding_registers(slave_map_io['map_io']['node']['motion'][f'{item+1}']['parameter'], [0])
     if str(route_id) in data and str(node_id) in data[str(route_id)]:
         for item in range(len(slave_map_io['map_io']['node']['motion'])):
-            set_multiple_holding_registers(slave_map_io['map_io']['node']['motion'][f'{item+1}']['name'], list(string_to_registers("", 12)))
-            set_multiple_holding_registers(slave_map_io['map_io']['node']['motion'][f'{item+1}']['parameter'], [0])
             set_multiple_holding_registers(slave_map_io['map_io']['node']['motion'][f'{item+1}']['name'], list(string_to_registers(data[str(route_id)][str(node_id)]["motion_{:}".format(item + 1)][0], 12)))
             set_multiple_holding_registers(slave_map_io['map_io']['node']['motion'][f'{item+1}']['parameter'], [data[str(route_id)][str(node_id)]["motion_{:}".format(item + 1)][1]])
 
 def insert_data(route_id, pre_id):
     with open(file_path, "r") as json_file:
         data = json.load(json_file)
+    for item in range(len(slave_map_io['map_io']['node']['motion'])):
+        set_multiple_holding_registers(slave_map_io['map_io']['node']['motion'][f'{item+1}']['name'], list(string_to_registers("", 12)))
+        set_multiple_holding_registers(slave_map_io['map_io']['node']['motion'][f'{item+1}']['parameter'], [0])
     if str(route_id) in data and str(pre_id) in data[str(route_id)]:
-        for item in range(5):
-            set_multiple_holding_registers(slave_map_io['map_io']['node']['motion'][f'{item+1}']['name'], list(string_to_registers("", 12)))
-            set_multiple_holding_registers(slave_map_io['map_io']['node']['motion'][f'{item+1}']['parameter'], [0])
+        for item in range(len(slave_map_io['map_io']['node']['motion'])):
             set_multiple_holding_registers(slave_map_io['map_io']['node']['motion'][f'{item+1}']['name'], list(string_to_registers(data[str(route_id)][str(pre_id)]["motion_{:}".format(item + 1)][0], 12)))
             set_multiple_holding_registers(slave_map_io['map_io']['node']['motion'][f'{item+1}']['parameter'], [data[str(route_id)][str(pre_id)]["motion_{:}".format(item + 1)][1]])
 
