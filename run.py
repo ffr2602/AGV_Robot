@@ -55,7 +55,6 @@ class robot():
         self.tt_task[2] = config['Obstacle']
         self.tt_task[3] = config['Acceleration']
         self.pid = PID(config['P'], config['I'], config['D'])
-        self.pid_slow = PID(9.00, 0.00, 0.00)
         self.canbus = CAN_setting()
     
     def update_speed(self, target_speed, tolerance=2):
