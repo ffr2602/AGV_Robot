@@ -211,7 +211,7 @@ class robot():
                     set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['high_value'], 100)
                 elif registers_to_string(get_multiple_holding_registers(slave_map_io['map_io']['node']['motion'][f'{i+1}']['name'], 6)) == "delay":
                     set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['low_value'], 0)
-                    set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['high_value'], 30000)
+                    set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['high_value'], 100000)
                 elif registers_to_string(get_multiple_holding_registers(slave_map_io['map_io']['node']['motion'][f'{i+1}']['name'], 6)) == "forward":
                     set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['low_value'], 0)
                     set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['high_value'], 10000)
