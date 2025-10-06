@@ -106,23 +106,33 @@
             "motion": {
                 "1": {
                     "name": 101,
-                    "parameter": 132
+                    "parameter": 132,
+                    "low_value": 149,
+                    "high_value": 154
                 },
                 "2": {
                     "name": 107,
-                    "parameter": 133
+                    "parameter": 133,
+                    "low_value": 150,
+                    "high_value": 155
                 },
                 "3": {
                     "name": 113,
-                    "parameter": 134
+                    "parameter": 134,
+                    "low_value": 151,
+                    "high_value": 156
                 },
                 "4": {
                     "name": 119,
-                    "parameter": 135
+                    "parameter": 135,
+                    "low_value": 152,
+                    "high_value": 157
                 },
                 "5": {
                     "name": 125,
-                    "parameter": 136
+                    "parameter": 136,
+                    "low_value": 153,
+                    "high_value": 158
                 }
             },
             "button": {

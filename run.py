@@ -108,7 +108,7 @@ class robot():
                                 self.cmd_com[1] = False
                             # ============= E-STOP =============
                             elif data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][0] == 'e-stop':
-                                self.ssa__in[4] = True
+                                self.ssa__in[4] = data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][1]
                             # ============= SOUND =============
                             elif data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][0] == 'sound':
                                 self.tt_task[0] = data_node[str(get_single_holding_register(slave_map_io['map_io']['dashboard']['route']))][str(self.canbus.data_RFID)][f'motion_{i + 1}'][1]
@@ -196,6 +196,46 @@ class robot():
     
     def main_robot(self):
         while True:
+            # =====================================
+            # ================ SET MAX & MIN PARAMETER ======================================
+            # ======================================================
+            for i in range(len(slave_map_io['map_io']['node']['motion'])):
+                if registers_to_string(get_multiple_holding_registers(slave_map_io['map_io']['node']['motion'][f'{i+1}']['name'], 6)) == "obs-set":
+                    set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['low_value'], 0)
+                    set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['high_value'], 1)
+                elif registers_to_string(get_multiple_holding_registers(slave_map_io['map_io']['node']['motion'][f'{i+1}']['name'], 6)) == "track":
+                    set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['low_value'], 0)
+                    set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['high_value'], 2)
+                elif registers_to_string(get_multiple_holding_registers(slave_map_io['map_io']['node']['motion'][f'{i+1}']['name'], 6)) == "speed":
+                    set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['low_value'], 0)
+                    set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['high_value'], 100)
+                elif registers_to_string(get_multiple_holding_registers(slave_map_io['map_io']['node']['motion'][f'{i+1}']['name'], 6)) == "delay":
+                    set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['low_value'], 0)
+                    set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['high_value'], 30000)
+                elif registers_to_string(get_multiple_holding_registers(slave_map_io['map_io']['node']['motion'][f'{i+1}']['name'], 6)) == "forward":
+                    set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['low_value'], 0)
+                    set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['high_value'], 10000)
+                elif registers_to_string(get_multiple_holding_registers(slave_map_io['map_io']['node']['motion'][f'{i+1}']['name'], 6)) == "stop":
+                    set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['low_value'], 0)
+                    set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['high_value'], 10000)
+                elif registers_to_string(get_multiple_holding_registers(slave_map_io['map_io']['node']['motion'][f'{i+1}']['name'], 6)) == "e-stop":
+                    set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['low_value'], 0)
+                    set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['high_value'], 1)
+                elif registers_to_string(get_multiple_holding_registers(slave_map_io['map_io']['node']['motion'][f'{i+1}']['name'], 6)) == "sound":
+                    set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['low_value'], 0)
+                    set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['high_value'], 1)
+                elif registers_to_string(get_multiple_holding_registers(slave_map_io['map_io']['node']['motion'][f'{i+1}']['name'], 6)) == "stick":
+                    set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['low_value'], 0)
+                    set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['high_value'], 1)
+                elif registers_to_string(get_multiple_holding_registers(slave_map_io['map_io']['node']['motion'][f'{i+1}']['name'], 6)) == "route-trans":
+                    set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['low_value'], 0)
+                    set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['high_value'], 10000)
+                else:
+                    set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['low_value'], 0)
+                    set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['high_value'], 0)
+            # ======================================
+            # ================= TIME LOOP ======================================
+            # =======================================================
             self.loop_time[0] = time.time() * 1000
             # ======================================
             route()
