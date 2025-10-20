@@ -233,8 +233,6 @@ class robot():
                 else:
                     set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['low_value'], 0)
                     set_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['high_value'], 0)
-
-                print(get_single_holding_register(slave_map_io['map_io']['node']['motion'][f'{i+1}']['high_value']))
             # ======================================
             # ================= TIME LOOP ======================================
             # =======================================================
