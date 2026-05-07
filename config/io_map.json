@@ -1,7 +1,7 @@
 {
     "modbus": {
         "RTU": {
-            "port": "COM6",
+            "port": "/dev/ttyS0",
             "baudrate": 57600,
             "parity": "N",
             "stopbits": 1,
