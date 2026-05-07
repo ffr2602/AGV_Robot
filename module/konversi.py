@@ -39,7 +39,7 @@ def string_to_registers(string:str, max_length:int) -> list[int]:
                 break 
     if len(string) % 2 != 0:
         string += '\x00'
-    return struct.unpack('H'*int(len(string)*0.5), struct.pack(f'{len(string)}s', string.encode('ascii')))
+    return list(struct.unpack('H'*int(len(string)*0.5), struct.pack(f'{len(string)}s', string.encode('ascii'))))
 
 def registers_to_int8(registers:int) -> int:
     return struct.unpack('b', struct.pack('B', registers))[0]
