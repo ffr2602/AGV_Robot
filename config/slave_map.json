@@ -6,7 +6,7 @@
             "parity": "N",
             "stopbits": 1,
             "bytesize": 8,
-            "framer": 0
+            "framer": "rtu"
         },
         "TCP": {
             "address": "0.0.0.0",

@@ -14,7 +14,7 @@ class CAN_setting():
         self.current : list[int] = [0, 0]
 
 
-    def set_kecepatan_motor(self, speed:list[int, int]):
+    def set_kecepatan_motor(self, speed:list[int]):
         if self.can_open == True:
             self.bus.send(can.Message(arbitration_id=0x201, data=[0x0f, 0x00, 0x0f, 0x00, 0x03], is_extended_id=False))
             self.bus.send(can.Message(arbitration_id=0x301, data=[int(hex(speed[0] & 0xff), 16),

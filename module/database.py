@@ -136,58 +136,58 @@ def save_config():
 # ============================== Coils ==============================
 
 def get_single_coil(addr):
-    return context[slave].getValues(1, addr, 1)[0] 
+    return store.getValues(1, addr, 1)[0] 
 
 def get_multiple_coils(addr, count):
-    return context[slave].getValues(1, addr, count)
+    return store.getValues(1, addr, count)
 
 def set_single_coil(addr, value: bool):
-    context[slave].setValues(1, addr, [value])
+    store.setValues(1, addr, [value])
 
 def set_multiple_coils(addr, value: list[bool]):
-    context[slave].setValues(1, addr, value)
+    store.setValues(1, addr, value)
 
 # ============================== Discrete Inputs ==============================
 
 def get_single_discrete_input(addr):
-    return context[slave].getValues(2, addr, 1)[0] 
+    return store.getValues(2, addr, 1)[0] 
 
 def get_multiple_discrete_inputs(addr, count):
-    return context[slave].getValues(2, addr, count)
+    return store.getValues(2, addr, count)
 
 def set_single_discrete_input(addr, value: bool):
-    context[slave].setValues(2, addr, [value])
+    store.setValues(2, addr, [value])
 
 def set_multiple_discrete_inputs(addr, value: list[bool]):
-    context[slave].setValues(2, addr, value)
+    store.setValues(2, addr, value)
 
 # ============================== Input Registers ==============================
 
 def get_single_input_register(addr):
-    return context[slave].getValues(4, addr, 1)[0] 
+    return store.getValues(4, addr, 1)[0] 
 
 def get_multiple_input_registers(addr, count):
-    return context[slave].getValues(4, addr, count)
+    return store.getValues(4, addr, count)
 
 def set_single_input_register(addr, value: int):
-    context[slave].setValues(4, addr, [value])
+    store.setValues(4, addr, [value])
 
 def set_multiple_input_registers(addr, value: list[int]):
-    context[slave].setValues(4, addr, value)
+    store.setValues(4, addr, value)
 
 # ============================== Holding Registers ==============================
 
 def get_single_holding_register(addr):
-    return context[slave].getValues(3, addr, 1)[0] 
+    return store.getValues(3, addr, 1)[0] 
 
 def get_multiple_holding_registers(addr, count):
-    return context[slave].getValues(3, addr, count)
+    return store.getValues(3, addr, count)
 
 def set_single_holding_register(addr, value: int):
-    context[slave].setValues(3, addr, [value])
+    store.setValues(3, addr, [value])
 
 def set_multiple_holding_registers(addr, value: list[int]):
-    context[slave].setValues(3, addr, value)
+    store.setValues(3, addr, value)
 
 # ============================================================ 
 # ============================ I/O Mapping ================================
@@ -268,19 +268,19 @@ def route():
         data_2 = get_single_holding_register(slave_map_io['map_io']['node']['rfid'])
         if data_1 != 0 and data_2 != 0:
             add_or_update_data(data_1, data_2)
-        set_single_coil(slave_map_io['map_io']['node']['button']['add&change'], 0)
+        set_single_coil(slave_map_io['map_io']['node']['button']['add&change'], False)
     elif get_single_coil(slave_map_io['map_io']['node']['button']['insert']):
         data_1 = get_single_holding_register(slave_map_io['map_io']['node']['route'])
         data_2 = get_single_holding_register(slave_map_io['map_io']['node']['pre_rfid'])
         if data_1 != 0 and data_2 != 0:
             insert_data(data_1, data_2)
-        set_single_coil(slave_map_io['map_io']['node']['button']['insert'], 0)
+        set_single_coil(slave_map_io['map_io']['node']['button']['insert'], False)
     elif get_single_coil(slave_map_io['map_io']['node']['button']['delete']):
         data_1 = get_single_holding_register(slave_map_io['map_io']['node']['route'])
         data_2 = get_single_holding_register(slave_map_io['map_io']['node']['rfid'])
         if data_1 != 0 and data_2 != 0:
             delete_data(data_1, data_2)
-        set_single_coil(slave_map_io['map_io']['node']['button']['delete'], 0)
+        set_single_coil(slave_map_io['map_io']['node']['button']['delete'], False)
     elif get_single_coil(slave_map_io['map_io']['node']['button']['view']):
         data_1 = get_single_holding_register(slave_map_io['map_io']['node']['route'])
         data_2 = get_single_holding_register(slave_map_io['map_io']['node']['rfid'])
@@ -320,8 +320,8 @@ def set_RFID(data):
     ser.open()
 
     if ser.is_open:
-        bufSend = [170, 85, 4, 0, 0, 1, 171]
-        ser.write(bufSend)
+        bufSend:list[int] = [170, 85, 4, 0, 0, 1, 171]
+        ser.write(bytes(bufSend))
         SetID = int(data)
         parset = [1, 2, 3, 4, 5, 6, 7, 8, 172]
         parset[4] = SetID >> 56 & 255
@@ -334,5 +334,5 @@ def set_RFID(data):
         parset[3] = SetID >> 0 & 255
         bufSend = [170, 81, 11, 0, 0]
         bufSend.extend(parset)
-        ser.write(bufSend)
+        ser.write(bytes(bufSend))
     ser.close()

@@ -23,23 +23,23 @@ class robot():
     tmp_RFID = 0
     previous_time = 0
     # ================ Default Music | Default Track | Default Obstacle | Default Acceleration =================
-    tt_task = [0, 0, 0, 0]
+    tt_task: list = [0, 0, 0, 0]
     # ================ Time Loop Main | Time Loop I/O | Time Loop Task =================
-    loop_time = [0, 0, 0]
+    loop_time: list = [0, 0, 0]
     # ======== Voltage | Time ========
-    batt = [0.0, None]
+    batt: list = [0.0, None]
     # ======== Speed Left | Speed Right ========
-    ss__spd = [0, 0]
+    ss__spd: list = [0, 0]
     # ======== Alarm | Command | Bumper ========
-    cmd_com = [False, False, False]
+    cmd_com: list = [False, False, False]
     # ======== TCP | CAN ========
-    cc___er = [True, True]
+    cc___er: list = [True, True]
     # ======== E-Stop Button | Obstacle Warn | Obstacle Stop | Bumper | E-STOP Command ========
-    ssa__in = [True, True, True, False, False]
+    ssa__in: list = [True, True, True, False, False]
     # ======== Red | Green | Yellow ========
-    lmp_out = [False, False, False]
+    lmp_out: list = [False, False, False]
     # ======== S1 | S2 | S3 | S4 ========
-    snd_out = [False, False, False, False] 
+    snd_out: list = [False, False, False, False] 
     # ==============================================================================
     # ==============================================================================
     # ==============================================================================
@@ -163,9 +163,9 @@ class robot():
                     # ================= WHEEL & HOOK CONTROL ======================================
                     # ================= WHEEL ======================================
                     if button_wheel(conn) == 0 and wheel_up(conn) and wheel_down(conn) == 0:
-                        set_single_coil(slave_map_io['map_io']['dashboard']['control']['wheel'], 1)
+                        set_single_coil(slave_map_io['map_io']['dashboard']['control']['wheel'], True)
                     if button_wheel(conn) == 0 and wheel_up(conn) == 0 and wheel_down(conn):
-                        set_single_coil(slave_map_io['map_io']['dashboard']['control']['wheel'], 0)
+                        set_single_coil(slave_map_io['map_io']['dashboard']['control']['wheel'], False)
                     wheel_c(conn, get_single_coil(slave_map_io['map_io']['dashboard']['control']['wheel']))  
                     set_multiple_discrete_inputs(slave_map_io['map_io']['dashboard']['control']['state']['wheel_up'], [wheel_up(conn), wheel_down(conn)])
                     # ======================================
@@ -349,7 +349,7 @@ class robot():
                                         else:
                                             self.snd_out = [1, 0, 0, 0]
                                         self.lmp_out = [0, 0, 1]
-                                        set_multiple_discrete_inputs(slave_map_io['map_io']['dashboard']['alarm']['slow_area'], [1, 0, 0, 0])
+                                        set_multiple_discrete_inputs(slave_map_io['map_io']['dashboard']['alarm']['slow_area'], [True, False, False, False])
                                         target_speed = [int(speed(20)), int(speed(20))]
                                         self.canbus.set_kecepatan_motor([int(-self.update_speed(target_speed)[0] + self.pid.compute(self.error)), int(self.update_speed(target_speed)[1] + self.pid.compute(self.error))])
                                         # ======================================
@@ -362,7 +362,7 @@ class robot():
                                         else:
                                             self.snd_out = [0, 0, 0, 1]
                                         self.lmp_out = [0, 1, 0]
-                                        set_multiple_discrete_inputs(slave_map_io['map_io']['dashboard']['alarm']['slow_area'], [0, 0, 0, 0])
+                                        set_multiple_discrete_inputs(slave_map_io['map_io']['dashboard']['alarm']['slow_area'], [False, False, False, False])
                                         target_speed = [int(speed(get_single_holding_register(slave_map_io['map_io']['dashboard']['speed']))), int(speed(get_single_holding_register(slave_map_io['map_io']['dashboard']['speed'])))]
                                         self.canbus.set_kecepatan_motor([int(-self.update_speed(target_speed)[0] + self.pid.compute(self.error)), int(self.update_speed(target_speed)[1] + self.pid.compute(self.error))])
                                         # ======================================
@@ -375,7 +375,7 @@ class robot():
                                     else:
                                         self.snd_out = [0, 1, 0, 0]
                                     self.lmp_out = [1, 0, 0]
-                                    set_multiple_discrete_inputs(slave_map_io['map_io']['dashboard']['alarm']['slow_area'], [0, 1, 0, 0])
+                                    set_multiple_discrete_inputs(slave_map_io['map_io']['dashboard']['alarm']['slow_area'], [False, True, False, False])
                                     self.canbus.set_kecepatan_motor([int(self.pid.compute(self.error)), int(self.pid.compute(self.error))])
                                     self.ss__spd = [0, 0]
                                     # ======================================
@@ -388,7 +388,7 @@ class robot():
                                 else:
                                     self.snd_out = [0, 0, 0, 1]
                                 self.lmp_out = [0, 1, 0]
-                                set_multiple_discrete_inputs(slave_map_io['map_io']['dashboard']['alarm']['slow_area'], [0, 0, 0, 0])
+                                set_multiple_discrete_inputs(slave_map_io['map_io']['dashboard']['alarm']['slow_area'], [False, False, False, False])
                                 target_speed = [int(speed(get_single_holding_register(slave_map_io['map_io']['dashboard']['speed']))), int(speed(get_single_holding_register(slave_map_io['map_io']['dashboard']['speed'])))]
                                 self.canbus.set_kecepatan_motor([int(-self.update_speed(target_speed)[0] + self.pid.compute(self.error)), int(self.update_speed(target_speed)[1] + self.pid.compute(self.error))])
                                 # ======================================
@@ -398,8 +398,8 @@ class robot():
                         # ==============================================================================
                         self.snd_out = [0, 0, 0, 0]
                         self.lmp_out = [0, 0, 0]
-                        set_multiple_discrete_inputs(slave_map_io['map_io']['dashboard']['alarm']['slow_area'], [0, 0, 0, 0])
-                        set_single_discrete_input(slave_map_io['map_io']['dashboard']['state']['forward'], 0)
+                        set_multiple_discrete_inputs(slave_map_io['map_io']['dashboard']['alarm']['slow_area'], [False, False, False, False])
+                        set_single_discrete_input(slave_map_io['map_io']['dashboard']['state']['forward'], False)
                         target_speed = [0, 0]
                         self.canbus.set_kecepatan_motor([int(-self.update_speed(target_speed)[0] + self.pid.compute(self.error)), int(self.update_speed(target_speed)[1] + self.pid.compute(self.error))])
                         # ======================================
